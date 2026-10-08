@@ -1,0 +1,48 @@
+SET
+-- v_case_overview
+  case_number  |      case_type      |      status       | lead_detective | days_open | evidence_count 
+---------------+---------------------+-------------------+----------------+-----------+----------------
+ NOIR-2025-005 | Infidelity          | Closed - unsolved | Jake Gittes    |        23 |              0
+ NOIR-2025-001 | Missing person      | Closed - solved   | Philip Marlowe |        46 |              2
+ NOIR-2025-003 | Theft               | Closed - solved   | Sam Spade      |        85 |              2
+ NOIR-2025-007 | Blackmail           | On hold           | Mike Hammer    |       372 |              0
+ NOIR-2025-006 | Murder consultation | Open              | Philip Marlowe |       385 |              3
+ NOIR-2025-004 | Fraud               | In progress       | Sam Spade      |       463 |              1
+ NOIR-2025-002 | Blackmail           | In progress       | Mike Hammer    |       605 |              1
+(7 rows)
+
+-- v_detective_workload
+   detective    |   detective_rank    | active_cases | all_cases | led_cases 
+----------------+---------------------+--------------+-----------+-----------
+ Mike Hammer    | Investigator        |            2 |         3 |         2
+ Nora Charles   | Investigator        |            2 |         2 |         0
+ Philip Marlowe | Chief detective     |            1 |         3 |         2
+ Sam Spade      | Senior investigator |            1 |         2 |         2
+ Jake Gittes    | Rookie              |            0 |         2 |         1
+(5 rows)
+
+-- v_invoice_balance
+ invoice_number |        client        | amount  |  paid   | balance | payment_status 
+----------------+----------------------+---------+---------+---------+----------------
+ INV-2025-0001  | Vivian Sternwood     | 2500.00 | 2500.00 |    0.00 | PAID
+ INV-2025-0002  | Gutman Kasper        | 4000.00 | 4000.00 |    0.00 | PAID
+ INV-2025-0003  | Gutman Kasper        | 4200.00 | 2000.00 | 2200.00 | OVERDUE
+ INV-2025-0004  | Phyllis Dietrichson  |  900.00 |  900.00 |    0.00 | PAID
+ INV-2025-0005  | Walter Neff          | 2000.00 | 1000.00 | 1000.00 | OVERDUE
+ INV-2025-0006  | Brigid O'Shaughnessy | 1500.00 |    0.00 | 1500.00 | OVERDUE
+(6 rows)
+
+-- v_client_cases (klient: Gutman Kasper)
+  case_number  |        title         |     status      
+---------------+----------------------+-----------------
+ NOIR-2025-003 | The Falcon Statuette | Closed - solved
+ NOIR-2025-007 | Letters from Nowhere | On hold
+(2 rows)
+
+-- v_evidence_chain (dowod EV-0008)
+ evidence_code | evidence_type |   transferred_at    |   custodian    |     note      
+---------------+---------------+---------------------+----------------+---------------
+ EV-0008       | Weapon        | 2025-09-19 03:00:00 | Philip Marlowe | Collected
+ EV-0008       | Weapon        | 2025-09-19 12:00:00 | Nora Charles   | To ballistics
+(2 rows)
+

@@ -1,0 +1,500 @@
+Timing is off.
+psql:/manual/08_perf.sql:5: NOTICE:  drop cascades to 3 other objects
+DETAIL:  drop cascades to table perf.case_file
+drop cascades to table perf.evidence
+drop cascades to table perf.case_file_sorted
+DROP SCHEMA
+CREATE SCHEMA
+SET
+CREATE TABLE
+CREATE TABLE
+ setseed 
+---------
+ 
+(1 row)
+
+INSERT 0 300000
+INSERT 0 1000000
+ANALYZE
+=== 1. BRAK INDEKSOW (poza PK) ===
+                                                      QUERY PLAN                                                       
+-----------------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Gather (actual rows=2 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               ->  Parallel Hash Join (actual rows=1 loops=3)
+                     Hash Cond: (e.case_id = c.case_id)
+                     ->  Parallel Seq Scan on evidence e (actual rows=66603 loops=3)
+                           Filter: (evidence_type_id = 3)
+                           Rows Removed by Filter: 266730
+                     ->  Parallel Hash (actual rows=1 loops=3)
+                           Buckets: 1024  Batches: 1  Memory Usage: 40kB
+                           ->  Parallel Seq Scan on case_file c (actual rows=1 loops=3)
+                                 Filter: ((opened_on >= '2020-01-01'::date) AND (client_id = 777) AND (status_id = 2))
+                                 Rows Removed by Filter: 99999
+ Planning Time: 0.229 ms
+ Execution Time: 32.031 ms
+(20 rows)
+
+=== 2. TYLKO INDEKS FK evidence(case_id) ===
+CREATE INDEX
+ANALYZE
+                                                   QUERY PLAN                                                    
+-----------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Gather (actual rows=2 loops=1)
+               Workers Planned: 1
+               Workers Launched: 1
+               ->  Nested Loop (actual rows=1 loops=2)
+                     ->  Parallel Seq Scan on case_file c (actual rows=2 loops=2)
+                           Filter: ((opened_on >= '2020-01-01'::date) AND (client_id = 777) AND (status_id = 2))
+                           Rows Removed by Filter: 149998
+                     ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                           Recheck Cond: (c.case_id = case_id)
+                           Filter: (evidence_type_id = 3)
+                           Rows Removed by Filter: 3
+                           Heap Blocks: exact=10
+                           ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                                 Index Cond: (case_id = c.case_id)
+ Planning Time: 0.305 ms
+ Execution Time: 15.959 ms
+(21 rows)
+
+=== 3. JEDEN PROSTY na case_file (client_id) + evidence(case_id) ===
+CREATE INDEX
+ANALYZE
+                                     QUERY PLAN                                      
+-------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: (client_id = 777)
+                     Filter: ((opened_on >= '2020-01-01'::date) AND (status_id = 2))
+                     Rows Removed by Filter: 16
+                     Heap Blocks: exact=19
+                     ->  Bitmap Index Scan on p_client (actual rows=19 loops=1)
+                           Index Cond: (client_id = 777)
+               ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                     Recheck Cond: (c.case_id = case_id)
+                     Filter: (evidence_type_id = 3)
+                     Rows Removed by Filter: 3
+                     Heap Blocks: exact=10
+                     ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                           Index Cond: (case_id = c.case_id)
+ Planning Time: 0.193 ms
+ Execution Time: 0.089 ms
+(22 rows)
+
+=== 4. DWA PROSTE na case_file (client_id), (status_id) + evidence(case_id) ===
+CREATE INDEX
+ANALYZE
+                                     QUERY PLAN                                      
+-------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: (client_id = 777)
+                     Filter: ((opened_on >= '2020-01-01'::date) AND (status_id = 2))
+                     Rows Removed by Filter: 16
+                     Heap Blocks: exact=19
+                     ->  Bitmap Index Scan on p_client (actual rows=19 loops=1)
+                           Index Cond: (client_id = 777)
+               ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                     Recheck Cond: (c.case_id = case_id)
+                     Filter: (evidence_type_id = 3)
+                     Rows Removed by Filter: 3
+                     Heap Blocks: exact=10
+                     ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                           Index Cond: (case_id = c.case_id)
+ Planning Time: 0.209 ms
+ Execution Time: 0.082 ms
+(22 rows)
+
+=== 5. ZLOZONY na case_file (client_id, status_id, opened_on) + evidence(case_id) ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: ((client_id = 777) AND (status_id = 2) AND (opened_on >= '2020-01-01'::date))
+                     Heap Blocks: exact=3
+                     ->  Bitmap Index Scan on p_cs_opened (actual rows=3 loops=1)
+                           Index Cond: ((client_id = 777) AND (status_id = 2) AND (opened_on >= '2020-01-01'::date))
+               ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                     Recheck Cond: (c.case_id = case_id)
+                     Filter: (evidence_type_id = 3)
+                     Rows Removed by Filter: 3
+                     Heap Blocks: exact=10
+                     ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                           Index Cond: (case_id = c.case_id)
+ Planning Time: 0.289 ms
+ Execution Time: 0.118 ms
+(20 rows)
+
+=== 6. ZLOZONY na case_file + ZLOZONY evidence(case_id, evidence_type_id) ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: ((client_id = 777) AND (status_id = 2) AND (opened_on >= '2020-01-01'::date))
+                     Heap Blocks: exact=3
+                     ->  Bitmap Index Scan on p_cs_opened (actual rows=3 loops=1)
+                           Index Cond: ((client_id = 777) AND (status_id = 2) AND (opened_on >= '2020-01-01'::date))
+               ->  Index Only Scan using p_ev_case_type on evidence e (actual rows=1 loops=3)
+                     Index Cond: ((case_id = c.case_id) AND (evidence_type_id = 3))
+                     Heap Fetches: 2
+ Planning Time: 0.217 ms
+ Execution Time: 0.068 ms
+(16 rows)
+
+=== 7. ODWROCONA KOLEJNOSC (opened_on, status_id, client_id) -- zakres na pierwszej kolumnie ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                                  QUERY PLAN                                                   
+---------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Index Scan using p_opened_first on case_file c (actual rows=3 loops=1)
+                     Index Cond: ((opened_on >= '2020-01-01'::date) AND (status_id = 2) AND (client_id = 777))
+               ->  Index Only Scan using p_ev_case_type on evidence e (actual rows=1 loops=3)
+                     Index Cond: ((case_id = c.case_id) AND (evidence_type_id = 3))
+                     Heap Fetches: 2
+ Planning Time: 0.211 ms
+ Execution Time: 5.875 ms
+(13 rows)
+
+=== 8. POKRYWAJACY (client_id, status_id, opened_on) INCLUDE (title) ===
+DROP INDEX
+CREATE INDEX
+VACUUM
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: ((client_id = 777) AND (status_id = 2) AND (opened_on >= '2020-01-01'::date))
+                     Heap Blocks: exact=3
+                     ->  Bitmap Index Scan on p_cs_opened_cov (actual rows=3 loops=1)
+                           Index Cond: ((client_id = 777) AND (status_id = 2) AND (opened_on >= '2020-01-01'::date))
+               ->  Index Only Scan using p_ev_case_type on evidence e (actual rows=1 loops=3)
+                     Index Cond: ((case_id = c.case_id) AND (evidence_type_id = 3))
+                     Heap Fetches: 0
+ Planning Time: 0.188 ms
+ Execution Time: 0.058 ms
+(16 rows)
+
+DROP INDEX
+CREATE INDEX
+=== 9. B-TREE case_file(client_id) -- punkt odniesienia (jak wariant 3) ===
+CREATE INDEX
+ANALYZE
+                                     QUERY PLAN                                      
+-------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: (client_id = 777)
+                     Filter: ((opened_on >= '2020-01-01'::date) AND (status_id = 2))
+                     Rows Removed by Filter: 16
+                     Heap Blocks: exact=19
+                     ->  Bitmap Index Scan on p_client (actual rows=19 loops=1)
+                           Index Cond: (client_id = 777)
+               ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                     Recheck Cond: (c.case_id = case_id)
+                     Filter: (evidence_type_id = 3)
+                     Rows Removed by Filter: 3
+                     Heap Blocks: exact=10
+                     ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                           Index Cond: (case_id = c.case_id)
+ Planning Time: 0.255 ms
+ Execution Time: 0.104 ms
+(22 rows)
+
+=== 10. HASH case_file(client_id) ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                     QUERY PLAN                                      
+-------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Nested Loop (actual rows=2 loops=1)
+               ->  Bitmap Heap Scan on case_file c (actual rows=3 loops=1)
+                     Recheck Cond: (client_id = 777)
+                     Filter: ((opened_on >= '2020-01-01'::date) AND (status_id = 2))
+                     Rows Removed by Filter: 16
+                     Heap Blocks: exact=19
+                     ->  Bitmap Index Scan on p_client_hash (actual rows=19 loops=1)
+                           Index Cond: (client_id = 777)
+               ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                     Recheck Cond: (c.case_id = case_id)
+                     Filter: (evidence_type_id = 3)
+                     Rows Removed by Filter: 3
+                     Heap Blocks: exact=10
+                     ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                           Index Cond: (case_id = c.case_id)
+ Planning Time: 0.217 ms
+ Execution Time: 0.093 ms
+(22 rows)
+
+=== 11. BRIN case_file(opened_on) -- dane w losowej kolejnosci fizycznej ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                                   QUERY PLAN                                                    
+-----------------------------------------------------------------------------------------------------------------
+ GroupAggregate (actual rows=2 loops=1)
+   Group Key: c.case_id
+   ->  Sort (actual rows=2 loops=1)
+         Sort Key: c.case_id
+         Sort Method: quicksort  Memory: 25kB
+         ->  Gather (actual rows=2 loops=1)
+               Workers Planned: 1
+               Workers Launched: 1
+               ->  Nested Loop (actual rows=1 loops=2)
+                     ->  Parallel Seq Scan on case_file c (actual rows=2 loops=2)
+                           Filter: ((opened_on >= '2020-01-01'::date) AND (client_id = 777) AND (status_id = 2))
+                           Rows Removed by Filter: 149998
+                     ->  Bitmap Heap Scan on evidence e (actual rows=1 loops=3)
+                           Recheck Cond: (c.case_id = case_id)
+                           Filter: (evidence_type_id = 3)
+                           Rows Removed by Filter: 3
+                           Heap Blocks: exact=10
+                           ->  Bitmap Index Scan on p_ev_case (actual rows=3 loops=3)
+                                 Index Cond: (case_id = c.case_id)
+ Planning Time: 0.222 ms
+ Execution Time: 11.316 ms
+(21 rows)
+
+DROP INDEX
+=== 12. ZAKRES opened_on: brak indeksu ===
+                                              QUERY PLAN                                              
+------------------------------------------------------------------------------------------------------
+ Finalize Aggregate (actual rows=1 loops=1)
+   ->  Gather (actual rows=2 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         ->  Partial Aggregate (actual rows=1 loops=2)
+               ->  Parallel Seq Scan on case_file (actual rows=1259 loops=2)
+                     Filter: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-04-01'::date))
+                     Rows Removed by Filter: 148741
+ Planning Time: 0.063 ms
+ Execution Time: 10.466 ms
+(10 rows)
+
+=== 13. ZAKRES opened_on: B-TREE ===
+CREATE INDEX
+ANALYZE
+                                          QUERY PLAN                                          
+----------------------------------------------------------------------------------------------
+ Aggregate (actual rows=1 loops=1)
+   ->  Index Only Scan using p_opened_btree on case_file (actual rows=2518 loops=1)
+         Index Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-04-01'::date))
+         Heap Fetches: 0
+ Planning Time: 0.073 ms
+ Execution Time: 0.136 ms
+(6 rows)
+
+DROP INDEX
+=== 14. ZAKRES opened_on: BRIN, dane w losowej kolejnosci fizycznej ===
+CREATE INDEX
+ANALYZE
+                                              QUERY PLAN                                              
+------------------------------------------------------------------------------------------------------
+ Finalize Aggregate (actual rows=1 loops=1)
+   ->  Gather (actual rows=2 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         ->  Partial Aggregate (actual rows=1 loops=2)
+               ->  Parallel Seq Scan on case_file (actual rows=1259 loops=2)
+                     Filter: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-04-01'::date))
+                     Rows Removed by Filter: 148741
+ Planning Time: 0.095 ms
+ Execution Time: 11.935 ms
+(10 rows)
+
+DROP INDEX
+=== 15. ZAKRES opened_on: BRIN po fizycznym uporzadkowaniu tabeli wg opened_on ===
+SELECT 300000
+ANALYZE
+CREATE INDEX
+ANALYZE
+                                             QUERY PLAN                                             
+----------------------------------------------------------------------------------------------------
+ Aggregate (actual rows=1 loops=1)
+   ->  Bitmap Heap Scan on case_file_sorted (actual rows=2518 loops=1)
+         Recheck Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-04-01'::date))
+         Rows Removed by Index Recheck: 32298
+         Heap Blocks: lossy=256
+         ->  Bitmap Index Scan on p_sorted_brin (actual rows=2560 loops=1)
+               Index Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-04-01'::date))
+ Planning Time: 0.097 ms
+ Execution Time: 2.173 ms
+(9 rows)
+
+=== 16. S: brak indeksu ===
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Gather (actual rows=142 loops=1)
+   Workers Planned: 1
+   Workers Launched: 1
+   ->  Parallel Seq Scan on case_file (actual rows=71 loops=2)
+         Filter: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date) AND (status_id = 2))
+         Rows Removed by Filter: 149929
+ Planning Time: 0.030 ms
+ Execution Time: 10.581 ms
+(8 rows)
+
+=== 17. S: prosty (status_id) ===
+CREATE INDEX
+ANALYZE
+                                     QUERY PLAN                                     
+------------------------------------------------------------------------------------
+ Bitmap Heap Scan on case_file (actual rows=142 loops=1)
+   Recheck Cond: (status_id = 2)
+   Filter: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date))
+   Rows Removed by Filter: 74571
+   Heap Blocks: exact=2206
+   ->  Bitmap Index Scan on q_status (actual rows=74713 loops=1)
+         Index Cond: (status_id = 2)
+ Planning Time: 0.099 ms
+ Execution Time: 9.360 ms
+(9 rows)
+
+=== 18. S: prosty (opened_on) ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                          QUERY PLAN                                          
+----------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on case_file (actual rows=142 loops=1)
+   Recheck Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date))
+   Filter: (status_id = 2)
+   Rows Removed by Filter: 427
+   Heap Blocks: exact=504
+   ->  Bitmap Index Scan on q_opened (actual rows=569 loops=1)
+         Index Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date))
+ Planning Time: 0.088 ms
+ Execution Time: 0.467 ms
+(9 rows)
+
+=== 19. S: dwa proste (status_id), (opened_on) ===
+CREATE INDEX
+ANALYZE
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on case_file (actual rows=142 loops=1)
+   Recheck Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date) AND (status_id = 2))
+   Heap Blocks: exact=138
+   ->  BitmapAnd (actual rows=0 loops=1)
+         ->  Bitmap Index Scan on q_opened (actual rows=569 loops=1)
+               Index Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date))
+         ->  Bitmap Index Scan on q_status (actual rows=74713 loops=1)
+               Index Cond: (status_id = 2)
+ Planning Time: 0.154 ms
+ Execution Time: 1.408 ms
+(10 rows)
+
+=== 20. S: ZLOZONY (status_id, opened_on) ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                                    QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on case_file (actual rows=142 loops=1)
+   Recheck Cond: ((status_id = 2) AND (opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date))
+   Heap Blocks: exact=138
+   ->  Bitmap Index Scan on q_composite (actual rows=142 loops=1)
+         Index Cond: ((status_id = 2) AND (opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date))
+ Planning Time: 0.117 ms
+ Execution Time: 0.164 ms
+(7 rows)
+
+=== 21. S: ZLOZONY w odwrotnej kolejnosci (opened_on, status_id) ===
+DROP INDEX
+CREATE INDEX
+ANALYZE
+                                                    QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on case_file (actual rows=142 loops=1)
+   Recheck Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date) AND (status_id = 2))
+   Heap Blocks: exact=138
+   ->  Bitmap Index Scan on q_composite_rev (actual rows=142 loops=1)
+         Index Cond: ((opened_on >= '2020-03-01'::date) AND (opened_on < '2020-03-08'::date) AND (status_id = 2))
+ Planning Time: 0.113 ms
+ Execution Time: 0.172 ms
+(7 rows)
+
+DROP INDEX
+=== 22. ROZMIARY INDEKSOW I TABEL ===
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+VACUUM
+     obiekt      | rodzaj |  bajty   | rozmiar 
+-----------------+--------+----------+---------
+ evidence        | tabela | 68272128 | 65 MB
+ case_file       | tabela | 18071552 | 17 MB
+ s_ev_case_type  | btree  | 20905984 | 20 MB
+ s_ev_case       | btree  | 13959168 | 13 MB
+ s_composite_inc | btree  | 12181504 | 12 MB
+ s_composite     | btree  |  9478144 | 9256 kB
+ s_client_hash   | hash   |  8814592 | 8608 kB
+ s_client_btree  | btree  |  2547712 | 2488 kB
+ s_opened_btree  | btree  |  2113536 | 2064 kB
+ s_opened_brin   | brin   |    24576 | 24 kB
+(10 rows)
+

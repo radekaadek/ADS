@@ -1,0 +1,39 @@
+PASS detective_app   expect=OK     got=OK     | SELECT count(*) FROM noir.case_file
+PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.witness (first_name,last_name,reliability) VALUES ('Test','Witness',3)
+PASS detective_app   expect=DENIED got=DENIED | SELECT * FROM noir.invoice
+PASS detective_app   expect=DENIED got=DENIED | SELECT * FROM noir.v_invoice_balance
+PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.evidence
+PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.evidence_custody (evidence_id,transferred_at,detective_id,note) VALUES (1,now(),1,'Test')
+PASS detective_app   expect=DENIED got=DENIED | UPDATE noir.evidence_custody SET note = 'zmiana'
+PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.evidence_custody
+PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.location (name,city) VALUES ('Test','Test')
+PASS detective_app   expect=OK     got=OK     | DELETE FROM noir.case_suspect
+PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.case_file
+PASS accountant_app  expect=OK     got=OK     | SELECT * FROM noir.v_invoice_balance
+PASS accountant_app  expect=DENIED got=DENIED | SELECT * FROM noir.case_file
+PASS accountant_app  expect=DENIED got=DENIED | SELECT * FROM noir.suspect
+PASS accountant_app  expect=OK     got=OK     | INSERT INTO noir.payment (invoice_id,method_id,paid_on,amount) VALUES (6,2,CURRENT_DATE,100)
+PASS accountant_app  expect=OK     got=OK     | SELECT * FROM noir.payment
+PASS accountant_app  expect=OK     got=OK     | SELECT case_id, case_number, fee_estimate FROM noir.case_file
+PASS accountant_app  expect=OK     got=OK     | INSERT INTO noir.invoice (invoice_number,case_id,issued_on,due_on,amount) VALUES ('FV-TEST',1,CURRENT_DATE,CURRENT_DATE,100)
+PASS accountant_app  expect=OK     got=OK     | UPDATE noir.invoice SET due_on = due_on + 14
+PASS accountant_app  expect=OK     got=OK     | DELETE FROM noir.payment
+PASS accountant_app  expect=DENIED got=DENIED | DELETE FROM noir.invoice
+PASS accountant_app  expect=DENIED got=DENIED | SELECT description FROM noir.case_file
+PASS client_portal   expect=OK     got=OK     | SELECT * FROM noir.v_client_cases
+PASS client_portal   expect=DENIED got=DENIED | SELECT * FROM noir.case_file
+PASS client_portal   expect=DENIED got=DENIED | SELECT * FROM noir.v_case_overview
+PASS client_portal   expect=DENIED got=DENIED | INSERT INTO noir.client (first_name,last_name,email) VALUES ('a','b','c')
+PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.case_detective (case_id,detective_id,role,assigned_on) VALUES (1,6,'ASSISTANT',CURRENT_DATE)
+PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.case_detective
+PASS accountant_app  expect=DENIED got=DENIED | SELECT * FROM noir.v_evidence_chain
+PASS accountant_app  expect=DENIED got=DENIED | SELECT * FROM noir.v_detective_workload
+PASS accountant_app  expect=DENIED got=DENIED | SELECT * FROM noir.v_case_overview
+PASS detective_app   expect=OK     got=OK     | SELECT * FROM noir.v_client_cases
+PASS client_portal   expect=DENIED got=DENIED | SELECT * FROM noir.v_invoice_balance
+PASS client_portal   expect=DENIED got=DENIED | SELECT * FROM noir.v_evidence_chain
+PASS client_portal   expect=DENIED got=DENIED | SELECT * FROM noir.v_detective_workload
+PASS detective_app   expect=OK     got=OK     | UPDATE noir.case_file SET fee_estimate = fee_estimate + 1
+PASS detective_app   expect=OK     got=OK     | UPDATE noir.informant SET trust_level = 3
+PASS accountant_app  expect=OK     got=OK     | UPDATE noir.payment SET amount = amount + 1
+PASS accountant_app  expect=OK     got=OK     | SELECT * FROM noir.payment_method

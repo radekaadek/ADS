@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Użycie: docker compose exec db bash /tests/permissions.sh
+# Każdy test: rola | polecenie | oczekiwany wynik (OK / DENIED)
+run() {
+  local user=$1 pw=$2 expect=$3 sql=$4
+  out=$(PGPASSWORD=$pw psql -h localhost -U "$user" -d noir -At -c "BEGIN; $sql; ROLLBACK;" 2>&1)
+  if echo "$out" | grep -q "permission denied"; then got=DENIED; else got=OK; fi
+  [[ $got == "$expect" ]] && res=PASS || res=FAIL
+  printf '%-4s %-15s expect=%-6s got=%-6s | %s\n' "$res" "$user" "$expect" "$got" "$sql"
+}
+D="detective_app detective_pw"; A="accountant_app accountant_pw"; C="client_portal client_pw"
+run $D OK     "SELECT count(*) FROM noir.case_file"
+run $D OK     "INSERT INTO noir.witness (first_name,last_name,reliability) VALUES ('Test','Witness',3)"
+run $D DENIED "SELECT * FROM noir.invoice"
+run $D DENIED "SELECT * FROM noir.v_invoice_balance"
+run $D DENIED "DELETE FROM noir.evidence"
+run $D OK     "INSERT INTO noir.evidence_custody (evidence_id,transferred_at,detective_id,note) VALUES (1,now(),1,'Test')"
+run $D DENIED "UPDATE noir.evidence_custody SET note = 'zmiana'"
+run $D DENIED "DELETE FROM noir.evidence_custody"
+run $D OK     "INSERT INTO noir.location (name,city) VALUES ('Test','Test')"
+run $D OK     "DELETE FROM noir.case_suspect"
+run $D DENIED "DELETE FROM noir.case_file"
+run $A OK     "SELECT * FROM noir.v_invoice_balance"
+run $A DENIED "SELECT * FROM noir.case_file"
+run $A DENIED "SELECT * FROM noir.suspect"
+run $A OK     "INSERT INTO noir.payment (invoice_id,method_id,paid_on,amount) VALUES (6,2,CURRENT_DATE,100)"
+run $A OK     "SELECT * FROM noir.payment"
+run $A OK     "SELECT case_id, case_number, fee_estimate FROM noir.case_file"
+run $A OK     "INSERT INTO noir.invoice (invoice_number,case_id,issued_on,due_on,amount) VALUES ('FV-TEST',1,CURRENT_DATE,CURRENT_DATE,100)"
+run $A OK     "UPDATE noir.invoice SET due_on = due_on + 14"
+run $A OK     "DELETE FROM noir.payment"
+run $A DENIED "DELETE FROM noir.invoice"
+run $A DENIED "SELECT description FROM noir.case_file"
+run $C OK     "SELECT * FROM noir.v_client_cases"
+run $C DENIED "SELECT * FROM noir.case_file"
+run $C DENIED "SELECT * FROM noir.v_case_overview"
+run $C DENIED "INSERT INTO noir.client (first_name,last_name,email) VALUES ('a','b','c')"
+run $D OK     "INSERT INTO noir.case_detective (case_id,detective_id,role,assigned_on) VALUES (1,6,'ASSISTANT',CURRENT_DATE)"
+run $D DENIED "DELETE FROM noir.case_detective"
+run $A DENIED "SELECT * FROM noir.v_evidence_chain"
+run $A DENIED "SELECT * FROM noir.v_detective_workload"
+run $A DENIED "SELECT * FROM noir.v_case_overview"
+run $D OK     "SELECT * FROM noir.v_client_cases"
+run $C DENIED "SELECT * FROM noir.v_invoice_balance"
+run $C DENIED "SELECT * FROM noir.v_evidence_chain"
+run $C DENIED "SELECT * FROM noir.v_detective_workload"
+run $D OK     "UPDATE noir.case_file SET fee_estimate = fee_estimate + 1"
+run $D OK     "UPDATE noir.informant SET trust_level = 3"
+run $A OK     "UPDATE noir.payment SET amount = amount + 1"
+run $A OK     "SELECT * FROM noir.payment_method"

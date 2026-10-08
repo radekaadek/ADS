@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:17
+    container_name: noir_pg
+    environment:
+      POSTGRES_USER: noir_admin
+      POSTGRES_PASSWORD: noir_admin_pw   # tylko środowisko deweloperskie / zaliczeniowe
+      POSTGRES_DB: noir
+    ports:
+      - "5432:5432"
+    volumes:
+      - noir_data:/var/lib/postgresql/data
+      # skrypty z sql/*.sql wykonują się alfabetycznie TYLKO przy pierwszym starcie (pusty wolumen)
+      - ./sql:/docker-entrypoint-initdb.d:ro
+      - ./sql/tests:/tests:ro
+      - ./sql/manual:/manual:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noir_admin -d noir"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  noir_data:
