@@ -22,13 +22,13 @@ INSERT INTO detective (rank_id, first_name, last_name, license_no, hired_on, is_
  (1, 'Jake',    'Gittes',  'LIC-0005', '2025-01-10', TRUE),
  (3, 'Lew',     'Archer',  'LIC-0006', '2017-11-30', FALSE);
 
-INSERT INTO location (name, street, city, notes) VALUES
- ('Sternwood Mansion',      '3765 Alta Brea Crescent', 'Los Angeles', 'Greenhouse in the back'),
- ('Hotel Belvedere',        '12 Sutter Street',        'San Francisco', 'Room 12'),
- ('Burbank Pier',           'Pier 4',                  'Los Angeles', 'Abandoned warehouse nearby'),
- ('Silver Moon Club',       '88 Ocean Avenue',         'Santa Monica', 'Back door to the alley'),
- ('Hollywood Hills Garage', '14 Mulholland Drive',     'Los Angeles', NULL),
- ('Union Station',          '800 N Alameda Street',    'Los Angeles', 'Locker 117');
+INSERT INTO location (approximate_lat, approximate_lon, notes) VALUES
+ (34.1100, -118.3500, 'Greenhouse in the back'),
+ (37.7900, -122.4000, 'Room 12'),
+ (33.7400, -118.2800, 'Abandoned warehouse nearby'),
+ (34.0100, -118.5000, 'Back door to the alley'),
+ (34.1200, -118.3200, NULL),
+ (34.0560, -118.2360, 'Locker 117');
 
 INSERT INTO case_file (case_number, title, description, type_id, status_id, client_id, opened_on, closed_on, fee_estimate) VALUES
  ('NOIR-2025-001', 'The Missing Chauffeur',      'Chauffeur of the Sternwood family vanished after a night out.', 1, 4, 1, '2025-01-15', '2025-03-02', 2500.00),

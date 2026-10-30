@@ -1,0 +1,33 @@
+--- schedule
+ jobid |         jobname          |  schedule   | database |              command               | active 
+-------+--------------------------+-------------+----------+------------------------------------+--------
+     1 | noir_nightly_maintenance | 0 2 * * *   | noir     | CALL noir.sp_nightly_maintenance() | t
+     2 | noir_partner_sync        | */5 * * * * | noir     | CALL noir.sp_sync_partner_agency() | f
+(2 rows)
+
+przebiegow w job_run_log przed: 3
+--- schedule changed to every minute (for the duration of the test only)
+
+--- cron.job_run_details
+ jobid |  status   | return_message |     start_time      |      end_time       
+-------+-----------+----------------+---------------------+---------------------
+     1 | succeeded | CALL           | 2026-10-17 15:47:00 | 2026-10-17 15:47:01
+(1 row)
+
+
+--- job_run_log after a run triggered by pg_cron
+ run_id |      job_name       | status |                                         details                                          
+--------+---------------------+--------+------------------------------------------------------------------------------------------
+      1 | nightly_maintenance | OK     | overdue invoices: +2/-0; inactive cases: +3/-0; statistics: 132 rows; purged from log: 0
+      2 | nightly_maintenance | OK     | overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+      3 | nightly_maintenance | OK     | overdue invoices: +0/-1; inactive cases: +0/-1; statistics: 132 rows; purged from log: 0
+      4 | nightly_maintenance | OK     | overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+(4 rows)
+
+--- schedule restored
+         jobname          |  schedule   
+--------------------------+-------------
+ noir_partner_sync        | */5 * * * *
+ noir_nightly_maintenance | 0 2 * * *
+(2 rows)
+

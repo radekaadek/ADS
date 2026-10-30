@@ -10,7 +10,12 @@ Repozytorium z projektem zaliczeniowym z relacyjnych baz danych (kurs ADS). Odpo
   - `diagrams/*.drawio` – diagramy; `diagrams/pdf/` – ich eksporty; `results/` – zapisane wyniki testów.
   - `pdf/` – gotowe PDF-y do oddania; `README.md` – instrukcja uruchomienia dla człowieka.
 
-## Zasady dla dokumentów (`.md` → PDF)
+- `part1/task2/` – etap 2 tego samego projektu: baza z task1 rozszerzona o funkcje, procedury, wyzwalacze, zadania (pg_cron / SQL Server Agent), kopie zapasowe i migrację na SQL Server 2022 (Docker Compose: `pg` + `mssql`). Treść zadania: ten sam PDF w `part1/task1/` (część „Etap 2”).
+  - `sprawozdanie.md` – jedyny dokument etapu 2 (PDF w `pdf/`); `README.md` – instrukcja dla człowieka.
+  - `sql/pg/` (`01`–`05` baza z task1, `06`–`12` etap 2), `sql/mssql/` (port T-SQL `00`–`12`, `etl_*.sql`), `sql/manual/` (demonstracje, odciski tabel), `sql/tests/` (testy uprawnień dla obu SZBD).
+  - `etl/` (BULK INSERT, Apache Hop, próba pgloader), `scripts/` (budowa SQL Server, kopie zapasowe, porównanie zawartości), `run_all.sh` – całość od zera z zapisem wyników do `results/`.
+
+## Zasady dla dokumentów (`.md` → PDF; w `part1/task2/` obowiązują tak samo, PDF buduje tamtejszy `./build_pdf.sh`)
 1. **Po każdej edycji `case_study.md` lub `sprawozdanie.md` zawsze odświeżaj PDF-y**: uruchom `./build_pdf.sh` w `part1/task1/`. Dotyczy to także zmian w `sql/`, wynikach lub diagramach, które trafiają do dokumentów. Po zbudowaniu sprawdź, że komenda zakończyła się komunikatem „Gotowe" bez błędów.
 2. **PDF-y muszą być samowystarczalne.** W treści nie wolno odwoływać się do innych plików ani katalogów (`README.md`, `sql/…`, `results/…`, `diagrams/…`, `docker-compose.yml`, nazw skryptów, drugiego dokumentu). Potrzebną treść (konfigurację, kod SQL, wyniki, diagramy) osadzaj w samym dokumencie, a kod w załącznikach. Po budowie sprawdź: `pdftotext pdf/<plik>.pdf - | grep -iE "\.md|\.sql|\.sh|\.drawio|README|results/|diagrams/"` nie może nic zwracać.
 3. Diagramy są osadzone w treści (z `diagrams/pdf/`); schemat logiczny na stronie A4 w poziomie. Po zmianie `.drawio` najpierw wyeksportuj diagramy do PDF, potem przebuduj dokumenty. Układ schematu logicznego jest generowany ze schematu bazy – nie edytuj go ręcznie, jeśli da się wygenerować na nowo.
@@ -37,3 +42,5 @@ Repozytorium z projektem zaliczeniowym z relacyjnych baz danych (kurs ADS). Odpo
 ## Git
 - Commity i push tylko na wyraźną prośbę użytkownika.
 - Hasła w repozytorium są wyłącznie deweloperskie (zaliczeniowe), nie dodawaj prawdziwych sekretów.
+
+Każde sprawozdanie musi zgadzdać się z zestawem wspólnych reguł w KH_Projekt_Ogólne (2026) 1.pdf

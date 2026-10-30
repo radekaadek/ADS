@@ -1,0 +1,39 @@
+--- 1. comparison of strings differing in letter case
+  result   
+-----------
+ different
+(1 row)
+
+--- 2. UNIQUE and NULL values: two rows with NULL in a UNIQUE column
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+ row_count 
+-----------
+         2
+(1 row)
+
+--- 3. typ TIMESTAMP
+          type_name          |           value            
+-----------------------------+----------------------------
+ timestamp without time zone | 2026-10-09 10:15:30.123456
+(1 row)
+
+--- 4. concatenating text with a number using the operator ||
+  result  
+----------
+ Count: 5
+(1 row)
+
+--- 5. date difference
+ days 
+------
+  281
+(1 row)
+
+--- 6. ordered aggregate inside COALESCE
+                                names                                
+---------------------------------------------------------------------
+ Blackmail,Fraud,Infidelity,Missing person,Murder consultation,Theft
+(1 row)
+

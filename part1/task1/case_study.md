@@ -79,3 +79,8 @@ Schemat zawiera typy danych, PK/FK/UNIQUE/NOT NULL oraz indeksy; tabele słownik
 - **Słownikowe (5):** `case_status`, `case_type`, `evidence_type`, `detective_rank`, `payment_method`.
 - **Główne (11):** `client`, `detective`, `location`, `case_file`, `suspect`, `witness`, `informant`, `evidence`, `tip`, `invoice`, `payment`.
 - **Asocjacyjne (4):** `case_detective`, `case_suspect`, `case_witness`, `evidence_custody`.
+
+
+## Wykorzystanie narzędzi AI
+
+Przy pisaniu pracy wspomagano się modelem Claude Sonnet 5 do wygenerowania kodu SQL, konfiguracji Docker Compose, diagramów ERD i logicznego schematu danych. Model wykorzystano też do pomocy przy pisaniu tekstu. Wszystkie z podanych były weryfikowane oraz poprawiane przez autora.

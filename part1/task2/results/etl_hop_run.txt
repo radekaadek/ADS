@@ -1,0 +1,105 @@
+2026/10/17 15:44:38 - HopRun - Enabling project 'noir-etl'
+2026/10/17 15:44:38 - HopRun - Two-way password encoder initialized with plugin ID 'Hop' for project 'noir-etl'
+2026/10/17 15:44:39 - HopRun - Starting pipeline: /tmp/noir-etl/pg_to_staging.hpl
+2026/10/17 15:44:39 - pg_to_staging - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2026/10/17 15:44:39 - pg_to_staging - Execution started for pipeline [pg_to_staging]
+2026/10/17 15:44:39 - write operation_log.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_type.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write suspect.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_detective.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write detective.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write evidence_custody.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write monthly_case_stats.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_status_history.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write document_counter.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write tip.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_witness.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write payment.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write evidence.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write witness.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_file.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_status.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write detective_rank.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write invoice.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write client.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write location.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write informant.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write payment_method.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write job_run_log.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write case_suspect.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write evidence_type.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - write alert.0 - Connected to database [mssql_noir] (commit=1000)
+2026/10/17 15:44:39 - read case_status.0 - Finished processing (I=5, O=0, R=0, W=5, U=0, E=0)
+2026/10/17 15:44:39 - read case_type.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - read witness.0 - Finished processing (I=5, O=0, R=0, W=5, U=0, E=0)
+2026/10/17 15:44:39 - read evidence.0 - Finished processing (I=9, O=0, R=0, W=9, U=0, E=0)
+2026/10/17 15:44:39 - read location.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - read invoice.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - read case_file.0 - Finished processing (I=7, O=0, R=0, W=7, U=0, E=0)
+2026/10/17 15:44:39 - read case_status_history.0 - Finished processing (I=13, O=0, R=0, W=13, U=0, E=0)
+2026/10/17 15:44:39 - read detective.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - read evidence_custody.0 - Finished processing (I=9, O=0, R=0, W=9, U=0, E=0)
+2026/10/17 15:44:39 - read client.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - read detective_rank.0 - Finished processing (I=4, O=0, R=0, W=4, U=0, E=0)
+2026/10/17 15:44:39 - read tip.0 - Finished processing (I=5, O=0, R=0, W=5, U=0, E=0)
+2026/10/17 15:44:39 - read payment_method.0 - Finished processing (I=4, O=0, R=0, W=4, U=0, E=0)
+2026/10/17 15:44:39 - read payment.0 - Finished processing (I=5, O=0, R=0, W=5, U=0, E=0)
+2026/10/17 15:44:39 - read document_counter.0 - Finished processing (I=3, O=0, R=0, W=3, U=0, E=0)
+2026/10/17 15:44:39 - read case_suspect.0 - Finished processing (I=11, O=0, R=0, W=11, U=0, E=0)
+2026/10/17 15:44:39 - read informant.0 - Finished processing (I=4, O=0, R=0, W=4, U=0, E=0)
+2026/10/17 15:44:39 - read case_witness.0 - Finished processing (I=7, O=0, R=0, W=7, U=0, E=0)
+2026/10/17 15:44:39 - read evidence_type.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - read case_detective.0 - Finished processing (I=12, O=0, R=0, W=12, U=0, E=0)
+2026/10/17 15:44:39 - read suspect.0 - Finished processing (I=6, O=0, R=0, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write document_counter.0 - Finished processing (I=0, O=3, R=3, W=3, U=0, E=0)
+2026/10/17 15:44:39 - write tip.0 - Finished processing (I=0, O=5, R=5, W=5, U=0, E=0)
+2026/10/17 15:44:39 - write case_type.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write invoice.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write location.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write payment_method.0 - Finished processing (I=0, O=4, R=4, W=4, U=0, E=0)
+2026/10/17 15:44:39 - write case_file.0 - Finished processing (I=0, O=7, R=7, W=7, U=0, E=0)
+2026/10/17 15:44:39 - write informant.0 - Finished processing (I=0, O=4, R=4, W=4, U=0, E=0)
+2026/10/17 15:44:39 - write witness.0 - Finished processing (I=0, O=5, R=5, W=5, U=0, E=0)
+2026/10/17 15:44:39 - write evidence_type.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write detective.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write detective_rank.0 - Finished processing (I=0, O=4, R=4, W=4, U=0, E=0)
+2026/10/17 15:44:39 - write suspect.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write case_suspect.0 - Finished processing (I=0, O=11, R=11, W=11, U=0, E=0)
+2026/10/17 15:44:39 - write client.0 - Finished processing (I=0, O=6, R=6, W=6, U=0, E=0)
+2026/10/17 15:44:39 - write payment.0 - Finished processing (I=0, O=5, R=5, W=5, U=0, E=0)
+2026/10/17 15:44:39 - write case_detective.0 - Finished processing (I=0, O=12, R=12, W=12, U=0, E=0)
+2026/10/17 15:44:39 - write evidence_custody.0 - Finished processing (I=0, O=9, R=9, W=9, U=0, E=0)
+2026/10/17 15:44:39 - write case_status.0 - Finished processing (I=0, O=5, R=5, W=5, U=0, E=0)
+2026/10/17 15:44:39 - write case_status_history.0 - Finished processing (I=0, O=13, R=13, W=13, U=0, E=0)
+2026/10/17 15:44:39 - write case_witness.0 - Finished processing (I=0, O=7, R=7, W=7, U=0, E=0)
+2026/10/17 15:44:39 - write evidence.0 - Finished processing (I=0, O=9, R=9, W=9, U=0, E=0)
+2026/10/17 15:44:39 - pg_to_staging - Pipeline duration : 0.811 seconds [  0.811" ]
+2026/10/17 15:44:39 - pg_to_staging - Execution finished on a local pipeline engine with run configuration 'local'
+HopRun exit.
+Changed database context to 'noir'.
+case_status: 5 wierszy
+case_type: 6 wierszy
+evidence_type: 6 wierszy
+detective_rank: 4 wierszy
+payment_method: 4 wierszy
+client: 6 wierszy
+detective: 6 wierszy
+location: 6 wierszy
+case_file: 7 wierszy
+suspect: 6 wierszy
+witness: 5 wierszy
+informant: 4 wierszy
+evidence: 9 wierszy
+tip: 5 wierszy
+invoice: 6 wierszy
+payment: 5 wierszy
+case_detective: 12 wierszy
+case_suspect: 11 wierszy
+case_witness: 7 wierszy
+evidence_custody: 9 wierszy
+case_status_history: 13 wierszy
+document_counter: 3 wierszy
+operation_log: 0 wierszy
+alert: 0 wierszy
+monthly_case_stats: 0 wierszy
+job_run_log: 0 wierszy

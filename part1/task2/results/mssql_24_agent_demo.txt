@@ -1,0 +1,27 @@
+--- zadania i scheduley
+job|schedule|freq_type|active_start_time|enabled
+---|--------|---------|-----------------|-------
+noir_backup|noir_daily_0300|4|30000|1
+noir_nightly_maintenance|noir_daily_0200|4|20000|1
+--- manual job start (sp_start_job)
+Job 'noir_nightly_maintenance' started successfully.
+--- schedule changed to every minute (for the duration of the test only)
+--- job history in msdb (step 1 = step result, step 0 = job result)
+step_id|run_status|run_time|run_duration|message
+-------|----------|--------|------------|-------
+1|Succeeded|15:45:12|0|Executed as user: NT AUTHORITY\NETWORK SERVICE. The step succeeded.
+0|Succeeded|15:45:12|0|The job succeeded.  The Job was invoked by User sa.  The last step to run was step 1 (sp_n
+1|Succeeded|15:46:00|0|Executed as user: NT AUTHORITY\NETWORK SERVICE. The step succeeded.
+0|Succeeded|15:46:00|0|The job succeeded.  The Job was invoked by Schedule 8 (noir_daily_0200).  The last step to
+--- job_run_log after runs triggered by the Agent
+run_id|job_name|status|details
+------|--------|------|-------
+1|nightly_maintenance|OK|overdue invoices: +2/-0; inactive cases: +3/-0; statistics: 132 rows; purged from log: 0
+2|nightly_maintenance|OK|overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+3|nightly_maintenance|OK|overdue invoices: +0/-1; inactive cases: +0/-1; statistics: 132 rows; purged from log: 0
+4|nightly_maintenance|OK|overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+5|nightly_maintenance|OK|overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+--- schedule restored
+name|freq_type|freq_subday_type|active_start_time
+----|---------|----------------|-----------------
+noir_daily_0200|4|1|20000

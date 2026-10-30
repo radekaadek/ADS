@@ -1,0 +1,28 @@
+tabela                 wiersze    md5 PostgreSQL                     md5 SQL Server                     zgodne
+alert                  0/0        d41d8cd98f00b204e9800998ecf8427e   d41d8cd98f00b204e9800998ecf8427e   TAK
+case_detective         12/12      dfc7c00de04fbe375698bca3564c0463   dfc7c00de04fbe375698bca3564c0463   TAK
+case_file              7/7        9c085bd3e86692ff13905f9f469ee349   9c085bd3e86692ff13905f9f469ee349   TAK
+case_status            5/5        41e630a1323fb4ee789dbb4fa884dd22   41e630a1323fb4ee789dbb4fa884dd22   TAK
+case_status_history    13/13      8e4a303f9db05195d41b787b8de8ccf5   8e4a303f9db05195d41b787b8de8ccf5   TAK
+case_suspect           11/11      b9964d63964147168f5fb22e02079a85   b9964d63964147168f5fb22e02079a85   TAK
+case_type              6/6        52e6505e2d47cd8b4c89148e9d04667f   52e6505e2d47cd8b4c89148e9d04667f   TAK
+case_witness           7/7        eaff4fb751bd00248a4b4bd022388830   eaff4fb751bd00248a4b4bd022388830   TAK
+client                 6/6        338de9a0943fffdf8b7f76ba18865d21   338de9a0943fffdf8b7f76ba18865d21   TAK
+detective              6/6        1675391c57f6c973ea9e130de0bfb508   1675391c57f6c973ea9e130de0bfb508   TAK
+detective_rank         4/4        d61310c6a857c684d59d68506986a6ee   d61310c6a857c684d59d68506986a6ee   TAK
+document_counter       3/3        c87fa0642aa7278010e026b0da5aa0c1   c87fa0642aa7278010e026b0da5aa0c1   TAK
+evidence               9/9        fd5aff1015296f1820caa98f3b43ba69   fd5aff1015296f1820caa98f3b43ba69   TAK
+evidence_custody       9/9        e74bd425ae556de552d31a9919f747cc   e74bd425ae556de552d31a9919f747cc   TAK
+evidence_type          6/6        8ebbda3b615945e1df9c948b88451f7e   8ebbda3b615945e1df9c948b88451f7e   TAK
+informant              4/4        989c32c027e6993ffba5bc5f9b1a866d   989c32c027e6993ffba5bc5f9b1a866d   TAK
+invoice                6/6        cd1c954bd4d7f0c26adc2dc9d6ec5715   cd1c954bd4d7f0c26adc2dc9d6ec5715   TAK
+job_run_log            0/0        d41d8cd98f00b204e9800998ecf8427e   d41d8cd98f00b204e9800998ecf8427e   TAK
+location               6/6        4142cb151524efeb76b2d3c605b9469e   4142cb151524efeb76b2d3c605b9469e   TAK
+monthly_case_stats     0/0        d41d8cd98f00b204e9800998ecf8427e   d41d8cd98f00b204e9800998ecf8427e   TAK
+operation_log          0/0        d41d8cd98f00b204e9800998ecf8427e   d41d8cd98f00b204e9800998ecf8427e   TAK
+payment                5/5        0ba2b85c8b70e05e236fe96ce006ab3d   0ba2b85c8b70e05e236fe96ce006ab3d   TAK
+payment_method         4/4        9869bed77cbe7795c6785f37a0ebc33f   9869bed77cbe7795c6785f37a0ebc33f   TAK
+suspect                6/6        a747e261a59d5bcc470ae6e895e9ad96   a747e261a59d5bcc470ae6e895e9ad96   TAK
+tip                    5/5        0b79e1a3254f83f2246dd2a9878105e2   0b79e1a3254f83f2246dd2a9878105e2   TAK
+witness                5/5        0aa0d99553afcfd741726a5244cbb935   0aa0d99553afcfd741726a5244cbb935   TAK
+RESULT: all tables match

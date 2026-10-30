@@ -220,3 +220,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- ADS: pliki lokalne ---
+# System / edytory
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+
+# Lokalne ustawienia Claude Code (CLAUDE.md pozostaje w repozytorium)
+.claude/settings.local.json
+
+# Kopie zapasowe draw.io
+.$*.bkp
+.$*.dtmp
+*.drawio.bkp
+
+# Pliki lokalne z hasłami / nadpisania Dockera
+docker-compose.override.yml
+*.local.env

@@ -1,0 +1,18 @@
+>> 03_views.sql
+Changed database context to 'noir'.
+>> 07_functions.sql
+Changed database context to 'noir'.
+>> 08_procedures.sql
+Changed database context to 'noir'.
+>> 09_triggers.sql
+Changed database context to 'noir'.
+>> 10_job_procedure.sql
+Changed database context to 'noir'.
+>> 11_views_roles.sql
+Changed database context to 'noir'.
+>> 04_roles.sql
+Changed database context to 'noir'.
+>> 12_jobs.sql
+Changed database context to 'msdb'.
+>> 13_sync.sql
+Changed database context to 'noir'.

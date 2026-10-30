@@ -1,0 +1,128 @@
+SET
+=== counters before ===
+ cases | assignments | status_history | log_entries | payments 
+-------+-------------+----------------+-------------+----------
+     7 |          12 |             13 |           0 |        5
+(1 row)
+
+=== sp_open_case: success ===
+ cases_before 
+--------------
+            7
+(1 row)
+
+ p_case_number |           p_result            
+---------------+-------------------------------
+ NOIR-2026-001 | OK: case opened NOIR-2026-001
+(1 row)
+
+ cases_after 
+-------------
+           8
+(1 row)
+
+  case_number  |       title       | fee_estimate | opened_on  
+---------------+-------------------+--------------+------------
+ NOIR-2026-001 | The Forged Ledger |      4200.00 | 2026-10-17
+(1 row)
+
+  case_number  | last_name | role 
+---------------+-----------+------
+ NOIR-2026-001 | Spade     | LEAD
+(1 row)
+
+ old_status_id | new_status 
+---------------+------------
+               | Open
+(1 row)
+
+=== sp_open_case: error at the first step (nonexistent client) ===
+ cases_before 
+--------------
+            8
+(1 row)
+
+ p_case_number |               p_result               
+---------------+--------------------------------------
+               | ERROR: Client does not exist: id 999
+(1 row)
+
+ cases_after | rolled_back_rows 
+-------------+------------------
+           8 |                0
+(1 row)
+
+=== sp_open_case: error at the last step (inactive detective) - the inserted case is rolled back ===
+ cases_before 
+--------------
+            8
+(1 row)
+
+ p_case_number |                      p_result                      
+---------------+----------------------------------------------------
+               | ERROR: Detective 6 does not exist or is not active
+(1 row)
+
+ cases_after | rolled_back_rows 
+-------------+------------------
+           8 |                0
+(1 row)
+
+ procedure_name | severity |                   message                   
+----------------+----------+---------------------------------------------
+ sp_open_case   | INFO     | OK: case opened NOIR-2026-001
+ sp_open_case   | ERROR    | Client does not exist: id 999
+ sp_open_case   | ERROR    | Detective 6 does not exist or is not active
+(3 rows)
+
+=== numbering: the number of a deleted case is not reused ===
+ counter_name | counter_year | last_value 
+--------------+--------------+------------
+ CASE         |         2025 |          7
+ CASE         |         2026 |          1
+(2 rows)
+
+ p_case_number |           p_result            
+---------------+-------------------------------
+ NOIR-2026-002 | OK: case opened NOIR-2026-002
+(1 row)
+
+DELETE 1
+DELETE 1
+DELETE 1
+ p_case_number |           p_result            
+---------------+-------------------------------
+ NOIR-2026-003 | OK: case opened NOIR-2026-003
+(1 row)
+
+  case_number  |       title       
+---------------+-------------------
+ NOIR-2026-001 | The Forged Ledger
+ NOIR-2026-003 | Case after delete
+(2 rows)
+
+ counter_name | counter_year | last_value 
+--------------+--------------+------------
+ CASE         |         2025 |          7
+ CASE         |         2026 |          3
+(2 rows)
+
+=== sp_register_payment (simple procedure): payment, payment above the balance, unknown invoice ===
+ p_payment_id 
+--------------
+            9
+(1 row)
+
+psql:/manual/21_procedures_demo.sql:39: ERROR:  Payments (total 1600.00) exceed invoice amount (1500.00)
+psql:/manual/21_procedures_demo.sql:40: ERROR:  Invoice does not exist: INV-2025-9999
+ invoice_number | amount  |  paid   | balance | payment_status 
+----------------+---------+---------+---------+----------------
+ INV-2025-0006  | 1500.00 | 1000.00 |  500.00 | OVERDUE
+(1 row)
+
+=== counters after ===
+ cases | assignments | status_history | log_entries | payments 
+-------+-------------+----------------+-------------+----------
+     9 |          14 |             15 |           5 |        6
+(1 row)
+

@@ -1,0 +1,56 @@
+== 1. Logical backup (pg_dump, custom format, compression) ==
+-rw-r--r-- 1 root root 111634 Oct 17 15:47 /backup/noir.dump
+-- archive table of contents (first lines)
+;
+; Archive created at 2026-10-17 15:47:50 UTC
+;     dbname: noir
+;     TOC Entries: 265
+;     Compression: gzip
+;     Dump Version: 1.16-0
+;     Format: CUSTOM
+;     Integer: 4 bytes
+;     Offset: 8 bytes
+;     Dumped from database version: 17.11 (Debian 17.11-1.pgdg13+2)
+;     Dumped by pg_dump version: 17.11 (Debian 17.11-1.pgdg13+2)
+;
+== 2. Physical backup (pg_basebackup) and its verification (pg_verifybackup) ==
+backup successfully verified
+== 3. Restore of the logical backup into a separate database noir_restore ==
+NOTICE:  database "noir_restore" does not exist, skipping
+tabel w noir_restore: 27
+== 4. Content comparison: row count and md5 of every table (original vs backup) ==
+table                  rows       md5 noir                           md5 noir_restore                   match
+alert                  5/5        47d6dcaf0510296ec39c5325ea2a2469   47d6dcaf0510296ec39c5325ea2a2469   YES
+case_detective         14/14      ee088be1706bda4c61ae1feb1f6dc961   ee088be1706bda4c61ae1feb1f6dc961   YES
+case_file              9/9        8465daff4fdf4d1e2b6f79ecbe68e779   8465daff4fdf4d1e2b6f79ecbe68e779   YES
+case_status            5/5        0050a05e28bc92cac624fe2caa9dbc03   0050a05e28bc92cac624fe2caa9dbc03   YES
+case_status_history    15/15      9f0e9bd6e38d803d1cd2fdb6cf092fda   9f0e9bd6e38d803d1cd2fdb6cf092fda   YES
+case_suspect           11/11      a5cc2291c427f769c44822a42a23b431   a5cc2291c427f769c44822a42a23b431   YES
+case_type              6/6        6c81c781723ffa1176bd6e024b4bb7a9   6c81c781723ffa1176bd6e024b4bb7a9   YES
+case_witness           7/7        fbed276f990527c41b37b9783feb4903   fbed276f990527c41b37b9783feb4903   YES
+client                 6/6        cf824ea5483515a40836e9ec8a0c6fbc   cf824ea5483515a40836e9ec8a0c6fbc   YES
+detective              6/6        31da0402fecf4e2891551bdccb3d0ed9   31da0402fecf4e2891551bdccb3d0ed9   YES
+detective_rank         4/4        56d699baa13c54ba627c390d119e7bc7   56d699baa13c54ba627c390d119e7bc7   YES
+document_counter       4/4        8204862d92f3786b6a57da0e5e10c8a1   8204862d92f3786b6a57da0e5e10c8a1   YES
+evidence               9/9        31ee13f99ecdc85df2111aaf5350cda2   31ee13f99ecdc85df2111aaf5350cda2   YES
+evidence_custody       9/9        981e618b733e7fab26f5aea14e3fbca2   981e618b733e7fab26f5aea14e3fbca2   YES
+evidence_type          6/6        8de659a0065e0e9acb64f3a52a59512a   8de659a0065e0e9acb64f3a52a59512a   YES
+informant              4/4        63cc3e636f07fe0c5f9c64b3f213b202   63cc3e636f07fe0c5f9c64b3f213b202   YES
+invoice                6/6        fbf8fe272f19baad07b4a321b1058e30   fbf8fe272f19baad07b4a321b1058e30   YES
+job_run_log            4/4        e77752dc9962cf63fb6f53a6e8faea6e   e77752dc9962cf63fb6f53a6e8faea6e   YES
+location               6/6        38c5a5c98a692ad012ca66e78c1be3d9   38c5a5c98a692ad012ca66e78c1be3d9   YES
+monthly_case_stats     132/132    91e8df71e5993c9d0e508db0ae185cc1   91e8df71e5993c9d0e508db0ae185cc1   YES
+operation_log          5/5        c60f9b07c074e9dd17e45a5b3b36fc81   c60f9b07c074e9dd17e45a5b3b36fc81   YES
+partner_agency         0/0        d41d8cd98f00b204e9800998ecf8427e   d41d8cd98f00b204e9800998ecf8427e   YES
+payment                8/8        3a05a944354c57d2882f4da3d87e9c7b   3a05a944354c57d2882f4da3d87e9c7b   YES
+payment_method         4/4        5327bd4bbe68783f3eb73153f15b84dc   5327bd4bbe68783f3eb73153f15b84dc   YES
+suspect                6/6        7f21d4293a3bf382a412bd6512f9c358   7f21d4293a3bf382a412bd6512f9c358   YES
+tip                    5/5        94109a638c0d4fa4b6a7ba007c632a02   94109a638c0d4fa4b6a7ba007c632a02   YES
+witness                5/5        3d2a8f67670751c150c024a7afcaa8a3   3d2a8f67670751c150c024a7afcaa8a3   YES
+RESULT: content identical in all tables
+== 5. Failure test: deleting data in noir and restoring from the backup ==
+invoices before failure: 6
+NOTICE:  truncate cascades to table "alert"
+invoices after failure: 0
+invoices after restore: 6, payments: 8
+RESULT: after the restore the content matches the backup

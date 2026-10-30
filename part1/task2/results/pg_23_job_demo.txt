@@ -1,0 +1,84 @@
+SET
+=== before the job ===
+ alerts | stats_rows | runs 
+--------+------------+------
+      0 |          0 |    0
+(1 row)
+
+=== first run ===
+CALL
+ run_id |      job_name       | status |                                         details                                          
+--------+---------------------+--------+------------------------------------------------------------------------------------------
+      1 | nightly_maintenance | OK     | overdue invoices: +2/-0; inactive cases: +3/-0; statistics: 132 rows; purged from log: 0
+(1 row)
+
+   alert_type    | cnt | open_cnt 
+-----------------+-----+----------
+ OVERDUE_INVOICE |   2 |        2
+ STALE_CASE      |   3 |        3
+(2 rows)
+
+   alert_type    | case_id |                          message                           
+-----------------+---------+------------------------------------------------------------
+ OVERDUE_INVOICE |       4 | Invoice INV-2025-0005 overdue by 412 days, balance 1000.00
+ OVERDUE_INVOICE |       6 | Invoice INV-2025-0006 overdue by 351 days, balance 500.00
+ STALE_CASE      |       2 | Case NOIR-2025-002 inactive for 608 days
+ STALE_CASE      |       4 | Case NOIR-2025-004 inactive for 464 days
+ STALE_CASE      |       6 | Case NOIR-2025-006 inactive for 387 days
+(5 rows)
+
+=== a repeated run is idempotent (no new alerts) ===
+CALL
+ run_id | status |                                         details                                          
+--------+--------+------------------------------------------------------------------------------------------
+      1 | OK     | overdue invoices: +2/-0; inactive cases: +3/-0; statistics: 132 rows; purged from log: 0
+      2 | OK     | overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+(2 rows)
+
+=== payment (sp_register_payment) and case closure - the next run closes the matching alerts ===
+ p_payment_id 
+--------------
+           15
+(1 row)
+
+UPDATE 1
+CALL
+ run_id | status |                                         details                                          
+--------+--------+------------------------------------------------------------------------------------------
+      1 | OK     | overdue invoices: +2/-0; inactive cases: +3/-0; statistics: 132 rows; purged from log: 0
+      2 | OK     | overdue invoices: +0/-0; inactive cases: +0/-0; statistics: 132 rows; purged from log: 0
+      3 | OK     | overdue invoices: +0/-1; inactive cases: +0/-1; statistics: 132 rows; purged from log: 0
+(3 rows)
+
+   alert_type    | case_id |                          message                           | resolved_on 
+-----------------+---------+------------------------------------------------------------+-------------
+ OVERDUE_INVOICE |       4 | Invoice INV-2025-0005 overdue by 412 days, balance 1000.00 | 
+ OVERDUE_INVOICE |       6 | Invoice INV-2025-0006 overdue by 351 days, balance 500.00  | 2026-10-17
+ STALE_CASE      |       6 | Case NOIR-2025-006 inactive for 387 days                   | 
+ STALE_CASE      |       2 | Case NOIR-2025-002 inactive for 608 days                   | 2026-10-17
+ STALE_CASE      |       4 | Case NOIR-2025-004 inactive for 464 days                   | 
+(5 rows)
+
+=== monthly snapshot (selected months) ===
+  month  |      case_type      | opened_cnt | closed_cnt | invoiced |  paid   
+---------+---------------------+------------+------------+----------+---------
+ 2025-01 | Missing person      |          1 |          0 |     0.00 |    0.00
+ 2025-02 | Blackmail           |          1 |          0 |     0.00 |    0.00
+ 2025-03 | Missing person      |          0 |          1 |  2500.00 | 2500.00
+ 2025-03 | Theft               |          1 |          0 |     0.00 |    0.00
+ 2025-04 | Theft               |          0 |          0 |  4000.00 |    0.00
+ 2025-05 | Theft               |          0 |          0 |     0.00 | 4000.00
+ 2025-06 | Theft               |          0 |          1 |  4200.00 |    0.00
+ 2025-07 | Fraud               |          1 |          0 |     0.00 |    0.00
+ 2025-07 | Theft               |          0 |          0 |     0.00 | 2000.00
+ 2025-08 | Fraud               |          0 |          0 |  2000.00 | 1000.00
+ 2025-08 | Infidelity          |          1 |          0 |     0.00 |    0.00
+ 2025-09 | Infidelity          |          0 |          1 |   900.00 |  900.00
+ 2025-09 | Murder consultation |          1 |          0 |     0.00 |    0.00
+ 2025-10 | Blackmail           |          1 |          0 |     0.00 |    0.00
+ 2025-10 | Murder consultation |          0 |          0 |  1500.00 |    0.00
+ 2026-10 | Fraud               |          1 |          0 |     0.00 |    0.00
+ 2026-10 | Murder consultation |          0 |          0 |     0.00 | 1500.00
+ 2026-10 | Theft               |          1 |          0 |     0.00 | 2200.00
+(18 rows)
+

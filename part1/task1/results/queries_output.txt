@@ -6,10 +6,10 @@ SET
  Jake Gittes    |            0
 (3 rows)
 
-   suspect   |   alias    | cases_count | max_suspicion |    last_seen     
--------------+------------+-------------+---------------+------------------
- Eddie Mars  | Mr. Mars   |           3 |             4 | Silver Moon Club
- Lash Canino | Lash       |           3 |             4 | Burbank Pier
- Lola Fenn   | The Blonde |           2 |             4 | Silver Moon Club
+   suspect   |   alias    | cases_count | max_suspicion | last_seen_location 
+-------------+------------+-------------+---------------+--------------------
+ Eddie Mars  | Mr. Mars   |           3 |             4 |                  4
+ Lash Canino | Lash       |           3 |             4 |                  3
+ Lola Fenn   | The Blonde |           2 |             4 |                  4
 (3 rows)
 

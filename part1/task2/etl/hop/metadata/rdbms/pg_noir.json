@@ -1,0 +1,16 @@
+{
+  "rdbms": {
+    "POSTGRESQL": {
+      "databaseName": "noir",
+      "pluginId": "POSTGRESQL",
+      "accessType": 0,
+      "hostname": "pg",
+      "password": "noir_admin_pw",
+      "pluginName": "PostgreSQL",
+      "port": "5432",
+      "username": "noir_admin",
+      "attributes": {}
+    }
+  },
+  "name": "pg_noir"
+}

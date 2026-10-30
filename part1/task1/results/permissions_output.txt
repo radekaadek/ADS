@@ -6,7 +6,7 @@ PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.evidence
 PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.evidence_custody (evidence_id,transferred_at,detective_id,note) VALUES (1,now(),1,'Test')
 PASS detective_app   expect=DENIED got=DENIED | UPDATE noir.evidence_custody SET note = 'zmiana'
 PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.evidence_custody
-PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.location (name,city) VALUES ('Test','Test')
+PASS detective_app   expect=OK     got=OK     | INSERT INTO noir.location (approximate_lat,approximate_lon) VALUES (0,0)
 PASS detective_app   expect=OK     got=OK     | DELETE FROM noir.case_suspect
 PASS detective_app   expect=DENIED got=DENIED | DELETE FROM noir.case_file
 PASS accountant_app  expect=OK     got=OK     | SELECT * FROM noir.v_invoice_balance

@@ -16,7 +16,7 @@ SELECT sp.first_name || ' ' || sp.last_name AS suspect,
        COALESCE(sp.alias, '-') AS alias,
        COUNT(*) AS cases_count,
        MAX(cs.suspicion_level) AS max_suspicion,
-       l.name AS last_seen
+       l.location_id AS last_seen_location
 FROM suspect sp
 JOIN case_suspect cs ON cs.suspect_id = sp.suspect_id
 JOIN location l ON l.location_id = sp.last_seen_location_id
@@ -26,6 +26,6 @@ WHERE EXISTS (
         JOIN case_suspect cs2 ON cs2.case_id = e.case_id
         WHERE cs2.suspect_id = sp.suspect_id
           AND e.location_id = sp.last_seen_location_id)
-GROUP BY sp.suspect_id, sp.first_name, sp.last_name, sp.alias, l.name
+GROUP BY sp.suspect_id, sp.first_name, sp.last_name, sp.alias, l.location_id
 HAVING COUNT(*) > 1
 ORDER BY cases_count DESC, max_suspicion DESC;

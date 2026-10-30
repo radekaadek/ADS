@@ -1,0 +1,18 @@
+1,4,Philip,Marlowe,LIC-0001,2018-03-01,t
+2,3,Sam,Spade,LIC-0002,2019-07-15,t
+3,2,Mike,Hammer,LIC-0003,2021-01-10,t
+4,2,Nora,Charles,LIC-0004,2022-09-05,t
+5,1,Jake,Gittes,LIC-0005,2025-01-10,t
+6,3,Lew,Archer,LIC-0006,2017-11-30,f
+Msg 4864, Level 16, State 1, Server 3b5203041f6e, Line 1
+Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 1, column 7 (is_active).
+Msg 4864, Level 16, State 1, Server 3b5203041f6e, Line 1
+Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 2, column 7 (is_active).
+Msg 4864, Level 16, State 1, Server 3b5203041f6e, Line 1
+Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 3, column 7 (is_active).
+Msg 4864, Level 16, State 1, Server 3b5203041f6e, Line 1
+Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 4, column 7 (is_active).
+Msg 4864, Level 16, State 1, Server 3b5203041f6e, Line 1
+Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 5, column 7 (is_active).
+Msg 4864, Level 16, State 1, Server 3b5203041f6e, Line 1
+Bulk load data conversion error (type mismatch or invalid character for the specified codepage) for row 6, column 7 (is_active).

@@ -1,0 +1,13 @@
+SET
+--- fn_case_timeline(3): timeline of the Falcon Statuette case
+      event_at       | event_type  |                     description                     
+---------------------+-------------+-----------------------------------------------------
+ 2025-03-25 00:00:00 | CASE_OPENED | The Falcon Statuette
+ 2025-04-02 00:00:00 | STATEMENT   | Harry Jones
+ 2025-04-02 11:45:00 | EVIDENCE    | EV-0005: Letter signed with an initial "G".
+ 2025-04-05 03:40:00 | TIP         | The statuette is being moved through Union Station.
+ 2025-04-06 04:10:00 | EVIDENCE    | EV-0004: Replica statuette with a lead core.
+ 2025-05-11 00:00:00 | STATEMENT   | Mona Mars
+ 2025-06-18 01:00:00 | STATUS      | -> Closed - solved
+(7 rows)
+

@@ -1,0 +1,17 @@
+{
+  "rdbms": {
+    "MSSQLNATIVE": {
+      "databaseName": "noir",
+      "pluginId": "MSSQLNATIVE",
+      "accessType": 0,
+      "hostname": "mssql",
+      "password": "Noir_Admin_pw1",
+      "pluginName": "MS SQL Server (Native)",
+      "port": "1433",
+      "username": "noir_admin",
+      "manualUrl": "jdbc:sqlserver://mssql:1433;databaseName=noir;encrypt=true;trustServerCertificate=true",
+      "attributes": {}
+    }
+  },
+  "name": "mssql_noir"
+}

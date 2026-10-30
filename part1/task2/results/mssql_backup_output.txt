@@ -1,0 +1,67 @@
+Changed database context to 'noir'.
+== 1. FULL recovery model and full backup (compression, checksum) ==
+Processed 1208 pages for database 'noir', file 'noir' on file 1.
+Processed 2 pages for database 'noir', file 'noir_log' on file 1.
+BACKUP DATABASE successfully processed 1210 pages in 0.107 seconds (88.310 MB/sec).
+== 2. Data change after the full backup, then a differential backup ==
+Processed 136 pages for database 'noir', file 'noir' on file 1.
+Processed 2 pages for database 'noir', file 'noir_log' on file 1.
+BACKUP DATABASE WITH DIFFERENTIAL successfully processed 138 pages in 0.063 seconds (17.051 MB/sec).
+== 3. Backup verification without restoring (RESTORE VERIFYONLY checks the checksum and readability) ==
+The backup set on file 1 is valid.
+The backup set on file 1 is valid.
+== 4. Files in the full backup and backup sets registered in msdb ==
+logical_name file_type file_size backup_size
+------------ --------- --------- -----------
+noir D 75497472 131072
+noir_log L 8388608 12288
+name backup_type backup_size compressed_backup_size has_backup_checksums recovery_model
+---- ----------- ----------- ---------------------- -------------------- --------------
+noir full full 11624448 811240 1 FULL
+noir differential differential 2187264 133850 1 FULL
+== 5. Restore of the chain (full NORECOVERY + differential RECOVERY) into a separate database noir_restore ==
+100 percent processed.
+Processed 1208 pages for database 'noir_restore', file 'noir' on file 1.
+Processed 2 pages for database 'noir_restore', file 'noir_log' on file 1.
+RESTORE DATABASE successfully processed 1210 pages in 0.278 seconds (33.989 MB/sec).
+100 percent processed.
+Processed 136 pages for database 'noir_restore', file 'noir' on file 1.
+Processed 2 pages for database 'noir_restore', file 'noir_log' on file 1.
+RESTORE DATABASE successfully processed 138 pages in 0.101 seconds (10.635 MB/sec).
+clients_in_noir clients_in_restore
+--------------- ------------------
+7 7
+== 6. Content comparison: table fingerprints of noir and noir_restore ==
+table                  rows       md5 noir                           md5 noir_restore                   match
+alert                  5/5        feb8d837c6f92259b6a5b28e6dad7f0b   feb8d837c6f92259b6a5b28e6dad7f0b   YES
+case_detective         14/14      12bd58cfb5f4b6aee75cad774625c3d0   12bd58cfb5f4b6aee75cad774625c3d0   YES
+case_file              9/9        4921e3b40cfed5e3dfdc909c14c0f9a6   4921e3b40cfed5e3dfdc909c14c0f9a6   YES
+case_status            5/5        41e630a1323fb4ee789dbb4fa884dd22   41e630a1323fb4ee789dbb4fa884dd22   YES
+case_status_history    15/15      1c19b550d29e21b900bc9acdb83e9bed   1c19b550d29e21b900bc9acdb83e9bed   YES
+case_suspect           11/11      b9964d63964147168f5fb22e02079a85   b9964d63964147168f5fb22e02079a85   YES
+case_type              6/6        52e6505e2d47cd8b4c89148e9d04667f   52e6505e2d47cd8b4c89148e9d04667f   YES
+case_witness           7/7        eaff4fb751bd00248a4b4bd022388830   eaff4fb751bd00248a4b4bd022388830   YES
+client                 7/7        b4f32d3dc548056ba97f252649c01cf6   b4f32d3dc548056ba97f252649c01cf6   YES
+detective              6/6        1675391c57f6c973ea9e130de0bfb508   1675391c57f6c973ea9e130de0bfb508   YES
+detective_rank         4/4        d61310c6a857c684d59d68506986a6ee   d61310c6a857c684d59d68506986a6ee   YES
+document_counter       4/4        e9ea2d29e96452b32454682eda1e12ba   e9ea2d29e96452b32454682eda1e12ba   YES
+evidence               9/9        fd5aff1015296f1820caa98f3b43ba69   fd5aff1015296f1820caa98f3b43ba69   YES
+evidence_custody       9/9        e74bd425ae556de552d31a9919f747cc   e74bd425ae556de552d31a9919f747cc   YES
+evidence_type          6/6        8ebbda3b615945e1df9c948b88451f7e   8ebbda3b615945e1df9c948b88451f7e   YES
+informant              4/4        989c32c027e6993ffba5bc5f9b1a866d   989c32c027e6993ffba5bc5f9b1a866d   YES
+invoice                6/6        cd1c954bd4d7f0c26adc2dc9d6ec5715   cd1c954bd4d7f0c26adc2dc9d6ec5715   YES
+job_run_log            5/5        6b3e43a880798e3114c75332802eb1f9   6b3e43a880798e3114c75332802eb1f9   YES
+location               6/6        4142cb151524efeb76b2d3c605b9469e   4142cb151524efeb76b2d3c605b9469e   YES
+monthly_case_stats     132/132    69ed0da62bfd9f1b15b1d768135f3d21   69ed0da62bfd9f1b15b1d768135f3d21   YES
+operation_log          5/5        bf1913fdbd20ae810f328f68b365748f   bf1913fdbd20ae810f328f68b365748f   YES
+partner_agency         0/0        d41d8cd98f00b204e9800998ecf8427e   d41d8cd98f00b204e9800998ecf8427e   YES
+payment                8/8        372ac1b962da7ecf0152f09396a91e33   372ac1b962da7ecf0152f09396a91e33   YES
+payment_method         4/4        9869bed77cbe7795c6785f37a0ebc33f   9869bed77cbe7795c6785f37a0ebc33f   YES
+suspect                6/6        a747e261a59d5bcc470ae6e895e9ad96   a747e261a59d5bcc470ae6e895e9ad96   YES
+tip                    5/5        0b79e1a3254f83f2246dd2a9878105e2   0b79e1a3254f83f2246dd2a9878105e2   YES
+witness                5/5        0aa0d99553afcfd741726a5244cbb935   0aa0d99553afcfd741726a5244cbb935   YES
+RESULT: content identical in all tables
+== 7. Failure test: deleting financial data in noir and restoring the database from the backup (WITH REPLACE) ==
+invoices after failure: 0
+invoices after restore: 6, payments: 8
+RESULT: after the restore the content matches the backup

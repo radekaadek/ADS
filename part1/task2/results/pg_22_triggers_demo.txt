@@ -1,0 +1,13 @@
+SET
+=== payments: above the invoice amount / before issue date / in the future / update to an excessive amount ===
+psql:/manual/22_triggers_demo.sql:4: ERROR:  Payments (total 4300.00) exceed invoice amount (4200.00)
+psql:/manual/22_triggers_demo.sql:5: ERROR:  Payment (2025-01-01) is before invoice issue date (2025-06-20)
+psql:/manual/22_triggers_demo.sql:6: ERROR:  Payment date is in the future (2026-10-20)
+psql:/manual/22_triggers_demo.sql:7: ERROR:  Payments (total 4500.00) exceed invoice amount (4200.00)
+=== payments: valid payment (remainder of the invoice) ===
+INSERT 0 1
+ invoice_number | amount  |  paid   | balance | payment_status 
+----------------+---------+---------+---------+----------------
+ INV-2025-0003  | 4200.00 | 4200.00 |    0.00 | PAID
+(1 row)
+

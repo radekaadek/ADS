@@ -30,8 +30,8 @@ Pełny skrypt tworzący schemat znajduje się na końcu dokumentu, w sekcji „S
 - **3NF:** wszystkie atrybuty niekluczowe zależą od klucza głównego tabeli (w tabelach z kluczem złożonym od całego klucza głównego) i tylko od niego. Zależności przechodnie wyeliminowano słownikami (status, typ, stopień, metoda płatności) - stawka godzinowa zależy od stopnia, więc jest w `detective_rank`, nie w `detective`. Salda faktur i liczba dni sprawy **nie są przechowywane** - liczone w widokach, co usuwa redundancję. Baza nie odchodzi od 3NF. Data zamknięcia `closed_on` jest faktem biznesowym zależnym od klucza głównego sprawy (status mówi, że sprawa jest zamknięta, ale nie kiedy), więc nie da się jej wyliczyć ze statusu i nie jest to zależność przechodnia. Spójność między statusem „Closed…” a wypełnieniem `closed_on` nie jest wymuszona w schemacie: ograniczenie `ck_case_file_dates` sprawdza tylko, że `closed_on >= opened_on`, a ograniczenie `CHECK` nie może odwołać się do nazwy statusu z innej tabeli. Pilnowanie tej reguły należy do aplikacji.
 - **Klucze złożone:** trzy z czterech tabel asocjacyjnych mają klucz główny złożony z dwóch kolumn (czwarta, `evidence_custody`, ma klucz zastępczy, opisany niżej). W `case_detective` kluczem jest para (`case_id`, `detective_id`), więc ten sam detektyw może być przypisany do danej sprawy tylko raz. W `case_suspect` kluczem jest para (`case_id`, `suspect_id`), więc dany podejrzany może być powiązany z daną sprawą tylko raz. W `case_witness` kluczem jest para (`case_id`, `witness_id`), więc dany świadek składa w danej sprawie jedno zeznanie.
 - **Klucze zastępcze:** `INTEGER/SMALLINT GENERATED ALWAYS AS IDENTITY`; naturalne identyfikatory (`case_number`, `evidence_code`, `invoice_number`, `license_no`, `email`, `codename`) mają `UNIQUE`. Klucz zastępczy ma też `evidence_custody` (`custody_id`), bo ten sam dowód może być przekazywany wielokrotnie, a znacznik czasu przekazania da się zmienić bez zmiany klucza głównego. Regułę, że jeden dowód nie ma dwóch przekazań w tej samej chwili, zapewnia ograniczenie `UNIQUE (evidence_id, transferred_at)`.
-- **Ograniczenia:** CHECK dla zakresów ocen (1-5), kwot (stawka godzinowa, kwota faktury i kwota płatności muszą być dodatnie: `> 0`, bo zero oznaczałoby pusty wpis lub pomyłkę; szacowana opłata za sprawę `fee_estimate >= 0`, bo sprawa może być bez opłaty; opłata za wskazówkę informatora `fee_per_tip >= 0`), dat (`closed_on >= opened_on`, `due_on >= issued_on`), roli (`LEAD`/`ASSISTANT`); unikalny indeks częściowy pilnuje, by sprawa miała najwyżej jednego prowadzącego (`LEAD`).
-- **NULL:** dozwolony tylko tam, gdzie brak wartości ma sens, np. `closed_on`, `phone`, `alias`, `birth_date`, `statement`, `company_name`, `description`, `street`, `notes`, `last_seen_location_id`, `note` w łańcuchu dowodowym i `location_id` dowodu.
+- **Ograniczenia:** CHECK dla zakresów ocen (1-5), współrzędnych miejsca (`approximate_lat` od -90 do 90, `approximate_lon` od -180 do 180), kwot (stawka godzinowa, kwota faktury i kwota płatności muszą być dodatnie: `> 0`, bo zero oznaczałoby pusty wpis lub pomyłkę; szacowana opłata za sprawę `fee_estimate >= 0`, bo sprawa może być bez opłaty; opłata za wskazówkę informatora `fee_per_tip >= 0`), dat (`closed_on >= opened_on`, `due_on >= issued_on`), roli (`LEAD`/`ASSISTANT`); unikalny indeks częściowy pilnuje, by sprawa miała najwyżej jednego prowadzącego (`LEAD`).
+- **NULL:** dozwolony tylko tam, gdzie brak wartości ma sens, np. `closed_on`, `phone`, `alias`, `birth_date`, `statement`, `company_name`, `description`, `notes`, `last_seen_location_id`, `note` w łańcuchu dowodowym i `location_id` dowodu.
 - **Typy:** `NUMERIC(10,2)` dla pieniędzy (nie `FLOAT`), `DATE` tam gdzie czas dnia nie ma znaczenia, `TIMESTAMP` dla znalezienia dowodu, przekazań i otrzymania wskazówki, `VARCHAR(n)` z rozsądnymi limitami.
 - **Przenośność:** unikanie ENUM, tablic i `jsonb`.
 
@@ -62,7 +62,7 @@ Skrypt tworzący użytkowników i nadający uprawnienia znajduje się na końcu 
 | `detective_app` | `INSERT INTO evidence_custody (evidence_id,transferred_at,detective_id,note) VALUES (1,now(),1,'Test')` | OK | OK | PASS |
 | `detective_app` | `UPDATE evidence_custody SET note = 'zmiana'` | DENIED | DENIED | PASS |
 | `detective_app` | `DELETE FROM evidence_custody` | DENIED | DENIED | PASS |
-| `detective_app` | `INSERT INTO location (name,city) VALUES ('Test','Test')` | OK | OK | PASS |
+| `detective_app` | `INSERT INTO location (approximate_lat,approximate_lon) VALUES (0,0)` | OK | OK | PASS |
 | `detective_app` | `DELETE FROM case_suspect` | OK | OK | PASS |
 | `detective_app` | `DELETE FROM case_file` | DENIED | DENIED | PASS |
 | `accountant_app` | `SELECT * FROM v_invoice_balance` | OK | OK | PASS |
@@ -132,7 +132,7 @@ SELECT sp.first_name || ' ' || sp.last_name AS suspect,
        COALESCE(sp.alias, '-') AS alias,
        COUNT(*) AS cases_count,
        MAX(cs.suspicion_level) AS max_suspicion,
-       l.name AS last_seen
+       l.location_id AS last_seen_location
 FROM suspect sp
 JOIN case_suspect cs ON cs.suspect_id = sp.suspect_id
 JOIN location l ON l.location_id = sp.last_seen_location_id
@@ -142,18 +142,18 @@ WHERE EXISTS (
         JOIN case_suspect cs2 ON cs2.case_id = e.case_id
         WHERE cs2.suspect_id = sp.suspect_id
           AND e.location_id = sp.last_seen_location_id)
-GROUP BY sp.suspect_id, sp.first_name, sp.last_name, sp.alias, l.name
+GROUP BY sp.suspect_id, sp.first_name, sp.last_name, sp.alias, l.location_id
 HAVING COUNT(*) > 1
 ORDER BY cases_count DESC, max_suspicion DESC;
 ```
 
 Wynik:
 ```
-   suspect   |   alias    | cases_count | max_suspicion |    last_seen     
--------------+------------+-------------+---------------+------------------
- Eddie Mars  | Mr. Mars   |           3 |             4 | Silver Moon Club
- Lash Canino | Lash       |           3 |             4 | Burbank Pier
- Lola Fenn   | The Blonde |           2 |             4 | Silver Moon Club
+   suspect   |   alias    | cases_count | max_suspicion | last_seen_location 
+-------------+------------+-------------+---------------+--------------------
+ Eddie Mars  | Mr. Mars   |           3 |             4 |                  4
+ Lash Canino | Lash       |           3 |             4 |                  3
+ Lola Fenn   | The Blonde |           2 |             4 |                  4
 (3 rows)
 ```
 
@@ -588,11 +588,12 @@ CREATE TABLE detective (
 
 CREATE TABLE location (
     location_id INTEGER GENERATED ALWAYS AS IDENTITY,
-    name        VARCHAR(100) NOT NULL,
-    street      VARCHAR(120),
-    city        VARCHAR(60) NOT NULL,
+    approximate_lat NUMERIC(8,5) NOT NULL,
+    approximate_lon NUMERIC(8,5) NOT NULL,
     notes       VARCHAR(300),
-    CONSTRAINT pk_location PRIMARY KEY (location_id)
+    CONSTRAINT pk_location PRIMARY KEY (location_id),
+    CONSTRAINT ck_location_lat CHECK (approximate_lat BETWEEN -90 AND 90),
+    CONSTRAINT ck_location_lon CHECK (approximate_lon BETWEEN -180 AND 180)
 );
 
 CREATE TABLE case_file (
@@ -795,7 +796,7 @@ SET search_path = noir;
 INSERT INTO case_status (name) VALUES ('Open'), ('In progress'), ('On hold'), ('Closed - solved'), ('Closed - unsolved');
 INSERT INTO case_type (name) VALUES ('Missing person'), ('Infidelity'), ('Fraud'), ('Theft'), ('Blackmail'), ('Murder consultation');
 INSERT INTO evidence_type (name) VALUES ('Photograph'), ('Document'), ('Weapon'), ('Recording'), ('Physical trace'), ('Letter');
-INSERT INTO detective_rank (name, hourly_rate) VALUES ('Rookie', 40.00), ('Investigator', 65.00), ('Senior investigator', 95.00), ('Chief detective', 140.00);
+INSERT INTO detective_rank (name, hourly_rate) VALUES (40.00), (65.00), (95.00), (140.00);
 INSERT INTO payment_method (name) VALUES ('Cash'), ('Bank transfer'), ('Cheque'), ('Card');
 
 INSERT INTO client (first_name, last_name, email, phone, company_name, registered_on) VALUES
@@ -814,13 +815,13 @@ INSERT INTO detective (rank_id, first_name, last_name, license_no, hired_on, is_
  (1, 'Jake',    'Gittes',  'LIC-0005', '2025-01-10', TRUE),
  (3, 'Lew',     'Archer',  'LIC-0006', '2017-11-30', FALSE);
 
-INSERT INTO location (name, street, city, notes) VALUES
- ('Sternwood Mansion',      '3765 Alta Brea Crescent', 'Los Angeles', 'Greenhouse in the back'),
- ('Hotel Belvedere',        '12 Sutter Street',        'San Francisco', 'Room 12'),
- ('Burbank Pier',           'Pier 4',                  'Los Angeles', 'Abandoned warehouse nearby'),
- ('Silver Moon Club',       '88 Ocean Avenue',         'Santa Monica', 'Back door to the alley'),
- ('Hollywood Hills Garage', '14 Mulholland Drive',     'Los Angeles', NULL),
- ('Union Station',          '800 N Alameda Street',    'Los Angeles', 'Locker 117');
+INSERT INTO location (approximate_lat, approximate_lon, notes) VALUES
+ (34.1100, -118.3500, 'Greenhouse in the back'),
+ (37.7900, -122.4000, 'Room 12'),
+ (33.7400, -118.2800, 'Abandoned warehouse nearby'),
+ (34.0100, -118.5000, 'Back door to the alley'),
+ (34.1200, -118.3200, NULL),
+ (34.0560, -118.2360, 'Locker 117');
 
 INSERT INTO case_file (case_number, title, description, type_id, status_id, client_id, opened_on, closed_on, fee_estimate) VALUES
  ('NOIR-2025-001', 'The Missing Chauffeur',      'Chauffeur of the Sternwood family vanished after a night out.', 1, 4, 1, '2025-01-15', '2025-03-02', 2500.00),
@@ -1104,3 +1105,8 @@ WHERE c.relkind IN ('r', 'i') AND (c.relkind = 'r' OR c.relname LIKE 's\_%')
   AND c.relname NOT LIKE '%pkey' AND c.relname <> 'case_file_sorted'
 ORDER BY c.relkind DESC, pg_relation_size(c.oid) DESC;
 ```
+
+
+## Wykorzystanie narzędzi AI
+
+Przy pisaniu pracy wspomagano się modelem Claude Sonnet 5 do wygenerowania kodu SQL, konfiguracji Docker Compose i logicznego schematu danych. Model wykorzystano też do pomocy przy pisaniu tekstu. Wszystkie z podanych były weryfikowane oraz poprawiane przez autora.

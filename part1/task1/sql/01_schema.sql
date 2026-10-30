@@ -71,11 +71,12 @@ CREATE TABLE detective (
 
 CREATE TABLE location (
     location_id INTEGER GENERATED ALWAYS AS IDENTITY,
-    name        VARCHAR(100) NOT NULL,
-    street      VARCHAR(120),
-    city        VARCHAR(60) NOT NULL,
+    approximate_lat NUMERIC(8,5) NOT NULL,
+    approximate_lon NUMERIC(8,5) NOT NULL,
     notes       VARCHAR(300),
-    CONSTRAINT pk_location PRIMARY KEY (location_id)
+    CONSTRAINT pk_location PRIMARY KEY (location_id),
+    CONSTRAINT ck_location_lat CHECK (approximate_lat BETWEEN -90 AND 90),
+    CONSTRAINT ck_location_lon CHECK (approximate_lon BETWEEN -180 AND 180)
 );
 
 CREATE TABLE case_file (

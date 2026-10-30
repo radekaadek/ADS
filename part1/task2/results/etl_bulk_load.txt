@@ -1,0 +1,78 @@
+== case_status
+
+(5 rows affected)
+== case_type
+
+(6 rows affected)
+== evidence_type
+
+(6 rows affected)
+== detective_rank
+
+(4 rows affected)
+== payment_method
+
+(4 rows affected)
+== client
+
+(6 rows affected)
+== detective
+
+(6 rows affected)
+== location
+
+(6 rows affected)
+== case_file
+
+(7 rows affected)
+== suspect
+
+(6 rows affected)
+== witness
+
+(5 rows affected)
+== informant
+
+(4 rows affected)
+== evidence
+
+(9 rows affected)
+== tip
+
+(5 rows affected)
+== invoice
+
+(6 rows affected)
+== payment
+
+(5 rows affected)
+== case_detective
+
+(12 rows affected)
+== case_suspect
+
+(11 rows affected)
+== case_witness
+
+(7 rows affected)
+== evidence_custody
+
+(9 rows affected)
+== case_status_history
+
+(13 rows affected)
+== document_counter
+
+(3 rows affected)
+== operation_log
+
+(0 rows affected)
+== alert
+
+(0 rows affected)
+== monthly_case_stats
+
+(0 rows affected)
+== job_run_log
+
+(0 rows affected)

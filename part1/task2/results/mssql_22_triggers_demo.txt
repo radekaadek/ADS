@@ -1,0 +1,13 @@
+=== payments: above the invoice amount / before issue date / in the future / update to an excessive amount ===
+Msg 50001, Level 16, State 1, Server 6494a60e8c5e, Procedure trg_payment, Line 28
+Payments (total 4300.00) exceed invoice amount (4200.00)
+Msg 50001, Level 16, State 1, Server 6494a60e8c5e, Procedure trg_payment, Line 16
+Payment (2025-01-01) is before invoice issue date (2025-06-20)
+Msg 50001, Level 16, State 1, Server 6494a60e8c5e, Procedure trg_payment, Line 20
+Payment date is in the future (2026-10-20)
+Msg 50001, Level 16, State 1, Server 6494a60e8c5e, Procedure trg_payment, Line 28
+Payments (total 4500.00) exceed invoice amount (4200.00)
+=== payments: valid payment (remainder of the invoice) ===
+invoice_number|amount|paid|balance|payment_status
+--------------|------|----|-------|--------------
+INV-2025-0003|4200.00|4200.00|.00|PAID

@@ -1,0 +1,37 @@
+--- 1. comparison of strings differing in letter case
+result
+------
+equal
+--- 2. UNIQUE and NULL values: two rows with NULL in a UNIQUE column
+Msg 2627, Level 14, State 1, Server 6494a60e8c5e, Line 1
+Violation of UNIQUE KEY constraint 'uq_u'. Cannot insert duplicate key in object 'dbo.#u'. The duplicate key value is (<NULL>).
+The statement has been terminated.
+--- 3. typ TIMESTAMP
+type_name|bytes
+---------|-----
+timestamp|8
+value
+-----
+0x00000000000008DD
+--- 4. concatenating text with a number using the operator +
+Msg 245, Level 16, State 1, Server 6494a60e8c5e, Line 1
+Conversion failed when converting the varchar value 'Count: ' to data type int.
+result_concat
+-------------
+Count: 5
+--- 5. date difference
+days
+----
+281
+--- 6. ordered aggregate inside COALESCE
+Msg 8711, Level 16, State 1, Server 6494a60e8c5e, Line 1
+Multiple ordered aggregate functions in the same scope have mutually incompatible orderings.
+names
+-----
+Blackmail,Fraud,Infidelity,Missing person,Murder consultation,Theft
+--- 7. write to a table with a filtered index in a session with QUOTED_IDENTIFIER OFF
+Msg 1934, Level 16, State 1, Server 6494a60e8c5e, Line 2
+INSERT failed because the following SET options have incorrect settings: 'QUOTED_IDENTIFIER'. Verify that SET options are correct for use with indexed views and/or indexes on computed columns and/or filtered indexes and/or query notifications and/or XML data type methods and/or spatial index operations.
+rows_in_alert
+-------------
+1

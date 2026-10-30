@@ -1,0 +1,40 @@
+pgloader version "3.6.10~devel"
+compiled with SBCL 2.2.9.debian
+--- source PostgreSQL, target SQL Server
+2026-10-17T15:44:19.008001Z LOG pgloader version "3.6.10~devel"
+2026-10-17T15:44:19.008001Z LOG Data errors in '/tmp/pgloader/'
+2026-10-17T15:44:19.012001Z ERROR Could not parse target string "mssql://sa:Noir_Admin_pw1@mssql:1433/noir": At
+
+  mssql://sa:Noir_Admin_pw
+  ^ (Line 1, Column 0, Position 0)
+
+In context PGSQL-PREFIX:
+
+While parsing PGSQL-PREFIX. Expected:
+
+     the string "pgsql"
+  or the string "postgres"
+  or the string "postgresql"
+2026-10-17T15:44:19.012001Z FATAL Failed to parse "mssql://sa:Noir_Admin_pw1@mssql:1433/noir" as a PostgreSQL database URI.
+--- reverse direction: source SQL Server, target PostgreSQL (auxiliary database scratch)
+NOTICE:  database "scratch" does not exist, skipping
+2026-10-17T15:44:20.512009Z ERROR Database error 42883: function sysdatetime() does not exist
+HINT: No function matches the given name and argument types. You might need to add explicit type casts.
+QUERY: CREATE TABLE noir.case_status_history 
+(
+  history_id    int not null,
+  case_id       int not null,
+  old_status_id smallint,
+  new_status_id smallint not null,
+  changed_at    timestamptz not null default sysdatetime(),
+  changed_by    text not null default user_name()
+);
+2026-10-17T15:44:20.512009Z FATAL Failed to create the schema, see above.
+       table name     errors       rows      bytes      total time
+-----------------  ---------  ---------  ---------  --------------
+  fetch meta data          0        121                     0.348s
+   Create Schemas          0          0                     0.000s
+ Create SQL Types          0          0                     0.004s
+    Create tables          0          0                     0.000s
+-----------------  ---------  ---------  ---------  --------------
+-----------------  ---------  ---------  ---------  --------------

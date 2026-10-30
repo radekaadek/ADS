@@ -1,0 +1,122 @@
+--- 1. Polaczenie (link) z PostgreSQL do SQL Server: tabela zewnetrzna widzi rejestr w SQL Server
+  srvname   |                                  srvoptions                                   
+------------+-------------------------------------------------------------------------------
+ mssql_noir | {servername=mssql,port=1433,database=noir,tds_version=7.4,msg_handler=notice}
+(1 row)
+
+ wierszy_w_sql_server 
+----------------------
+                    0
+(1 row)
+
+--- 2. Harmonogram pg_cron (zadanie nieaktywne do czasu uruchomienia) - na czas pokazu co 10 sekund
+ jobid |      jobname      |  schedule   | database |              command               | active 
+-------+-------------------+-------------+----------+------------------------------------+--------
+     2 | noir_partner_sync | */5 * * * * | noir     | CALL noir.sp_sync_partner_agency() | f
+(1 row)
+
+--- 3. Zmiany w obu systemach: PostgreSQL dodaje WAW i KRK, SQL Server dodaje BER
+przed synchronizacja:
+PostgreSQL:
+ agency_code |             name              |   city   |      phone       | is_active |       updated_at        
+-------------+-------------------------------+----------+------------------+-----------+-------------------------
+ KRK         | Krakowskie Biuro Sledcze      | Krakow   | +48 12 555 02 02 | t         | 2026-10-17 15:47:59.331
+ WAW         | Warszawska Agencja Detektywow | Warszawa | +48 22 555 01 01 | t         | 2026-10-17 15:47:59.331
+(2 rows)
+
+SQL Server:
+agency_code|name|city|phone|is_active|updated_at
+-----------|----|----|-----|---------|----------
+BER|Berliner Detektei|Berlin|+49 30 555 03 03|1|2026-10-17 15:47:59.419
+po synchronizacji (pg_cron):
+PostgreSQL:
+ agency_code |             name              |   city   |      phone       | is_active |       updated_at        
+-------------+-------------------------------+----------+------------------+-----------+-------------------------
+ BER         | Berliner Detektei             | Berlin   | +49 30 555 03 03 | t         | 2026-10-17 15:47:59.419
+ KRK         | Krakowskie Biuro Sledcze      | Krakow   | +48 12 555 02 02 | t         | 2026-10-17 15:47:59.331
+ WAW         | Warszawska Agencja Detektywow | Warszawa | +48 22 555 01 01 | t         | 2026-10-17 15:47:59.331
+(3 rows)
+
+SQL Server:
+agency_code|name|city|phone|is_active|updated_at
+-----------|----|----|-----|---------|----------
+BER|Berliner Detektei|Berlin|+49 30 555 03 03|1|2026-10-17 15:47:59.419
+KRK|Krakowskie Biuro Sledcze|Krakow|+48 12 555 02 02|1|2026-10-17 15:47:59.331
+WAW|Warszawska Agencja Detektywow|Warszawa|+48 22 555 01 01|1|2026-10-17 15:47:59.331
+--- 4. Modyfikacje: PostgreSQL zmienia telefon WAW, SQL Server zmienia miasto KRK i wycofuje BER
+po synchronizacji:
+PostgreSQL:
+ agency_code |             name              |       city       |      phone       | is_active |       updated_at        
+-------------+-------------------------------+------------------+------------------+-----------+-------------------------
+ BER         | Berliner Detektei             | Berlin           | +49 30 555 03 03 | f         | 2026-10-17 15:48:25.02
+ KRK         | Krakowskie Biuro Sledcze      | Krakow-Nowa Huta | +48 12 555 02 02 | t         | 2026-10-17 15:48:25.02
+ WAW         | Warszawska Agencja Detektywow | Warszawa         | +48 22 555 99 99 | t         | 2026-10-17 15:48:24.918
+(3 rows)
+
+SQL Server:
+agency_code|name|city|phone|is_active|updated_at
+-----------|----|----|-----|---------|----------
+BER|Berliner Detektei|Berlin|+49 30 555 03 03|0|2026-10-17 15:48:25.020
+KRK|Krakowskie Biuro Sledcze|Krakow-Nowa Huta|+48 12 555 02 02|1|2026-10-17 15:48:25.020
+WAW|Warszawska Agencja Detektywow|Warszawa|+48 22 555 99 99|1|2026-10-17 15:48:24.918
+--- 5. Konflikt: ta sama agencja (WAW) zmieniona w obu systemach, pozniejsza zmiana (SQL Server) wygrywa
+po synchronizacji:
+PostgreSQL:
+ agency_code |           name            |       city       |      phone       | is_active |       updated_at        
+-------------+---------------------------+------------------+------------------+-----------+-------------------------
+ BER         | Berliner Detektei         | Berlin           | +49 30 555 03 03 | f         | 2026-10-17 15:48:25.02
+ KRK         | Krakowskie Biuro Sledcze  | Krakow-Nowa Huta | +48 12 555 02 02 | t         | 2026-10-17 15:48:25.02
+ WAW         | WAW - wersja z SQL Server | Warszawa         | +48 22 555 99 99 | t         | 2026-10-17 15:48:52.432
+(3 rows)
+
+SQL Server:
+agency_code|name|city|phone|is_active|updated_at
+-----------|----|----|-----|---------|----------
+BER|Berliner Detektei|Berlin|+49 30 555 03 03|0|2026-10-17 15:48:25.020
+KRK|Krakowskie Biuro Sledcze|Krakow-Nowa Huta|+48 12 555 02 02|1|2026-10-17 15:48:25.020
+WAW|WAW - wersja z SQL Server|Warszawa|+48 22 555 99 99|1|2026-10-17 15:48:52.432
+--- 6. Dziennik synchronizacji (job_run_log) i historia pg_cron
+ status | przebiegow 
+--------+------------
+ OK     |          7
+(1 row)
+
+ run_id | status |                       details                       
+--------+--------+-----------------------------------------------------
+      5 | OK     | from SQL Server: 1, to SQL Server: 2 new, 0 changed
+      7 | OK     | from SQL Server: 2, to SQL Server: 0 new, 1 changed
+     10 | OK     | from SQL Server: 1, to SQL Server: 0 new, 0 changed
+(3 rows)
+
+  status   | przebiegow 
+-----------+------------
+ succeeded |          7
+(1 row)
+
+--- 7. Awaria SQL Server: przebieg konczy sie wpisem ERROR, po powrocie synchronizacja nadrabia zmiany
+ status |                                          details                                           
+--------+--------------------------------------------------------------------------------------------
+ ERROR  | DB-Library error: DB #: 20013, DB Msg: Unknown host machine name (mssql), OS #: 0, OS Msg:
+(1 row)
+
+po powrocie SQL Server:
+PostgreSQL:
+ agency_code |           name            |       city       |      phone       | is_active |       updated_at        
+-------------+---------------------------+------------------+------------------+-----------+-------------------------
+ BER         | Berliner Detektei         | Berlin           | +49 30 555 03 03 | f         | 2026-10-17 15:48:25.02
+ KRK         | Krakowskie Biuro Sledcze  | Krakow-Nowa Huta | +48 12 555 77 77 | t         | 2026-10-17 15:49:28.682
+ WAW         | WAW - wersja z SQL Server | Warszawa         | +48 22 555 99 99 | t         | 2026-10-17 15:48:52.432
+(3 rows)
+
+SQL Server:
+agency_code|name|city|phone|is_active|updated_at
+-----------|----|----|-----|---------|----------
+BER|Berliner Detektei|Berlin|+49 30 555 03 03|0|2026-10-17 15:48:25.020
+KRK|Krakowskie Biuro Sledcze|Krakow-Nowa Huta|+48 12 555 77 77|1|2026-10-17 15:49:28.682
+WAW|WAW - wersja z SQL Server|Warszawa|+48 22 555 99 99|1|2026-10-17 15:48:52.432
+--- 8. Przywrocenie harmonogramu (co 5 minut, zadanie nieaktywne)
+      jobname      |  schedule   | active 
+-------------------+-------------+--------
+ noir_partner_sync | */5 * * * * | f
+(1 row)
+

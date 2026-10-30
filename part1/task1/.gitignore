@@ -1,0 +1,7 @@
+# Artefakty budowy PDF (./build_pdf.sh) – pliki pośrednie
+build/
+
+# Gotowe PDF-y i eksporty diagramów (regenerowane przez build_pdf.sh);
+# żeby je jednak wersjonować, usuń poniższe linie i regułę *.pdf w głównym .gitignore
+pdf/
+diagrams/pdf/

@@ -1,0 +1,56 @@
+services:
+  pg:
+    build: ./docker/pg
+    image: noir-pg-cron:17
+    container_name: noir2_pg
+    command: ["postgres", "-c", "shared_preload_libraries=pg_cron", "-c", "cron.database_name=postgres"]
+    environment:
+      POSTGRES_USER: noir_admin
+      POSTGRES_PASSWORD: noir_admin_pw   # tylko srodowisko deweloperskie / zaliczeniowe
+      POSTGRES_DB: noir
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./sql/pg:/docker-entrypoint-initdb.d:ro
+      - ./sql/tests:/tests:ro
+      - ./sql/manual:/manual:ro
+      - pg_backup:/backup
+      - exchange:/exchange
+      - ./etl:/etl:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noir_admin -d noir"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: noir2_mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_AGENT_ENABLED: "true"
+      MSSQL_SA_PASSWORD: "Noir_Admin_pw1"   # tylko srodowisko deweloperskie / zaliczeniowe
+    ports:
+      - "1434:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./sql/mssql:/sql:ro
+      - ./sql/tests:/tests:ro
+      - ./sql/manual:/manual:ro
+      - mssql_backup:/var/opt/mssql/backup
+      - exchange:/exchange
+      - ./etl:/etl:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" -b"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pg_data:
+  mssql_data:
+  pg_backup:
+  mssql_backup:
+  exchange:
